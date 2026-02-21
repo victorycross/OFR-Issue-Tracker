@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Artifact 1 – Use Case Intake Template (Canonical)</title>
+
+<style>
+:root{
+  --pwc-orange:#E87722;
+  --pwc-dark:#2D2D2D;
+  --pwc-ink:#111827;
+  --pwc-slate:#475569;
+  --pwc-border:#E5E7EB;
+  --pwc-bg:#F5F5F5;
+  --pwc-card:#FFFFFF;
+  --pwc-focus:rgba(232,119,34,0.35);
+  --max:1040px;
+  --radius:14px;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--pwc-bg);
+  color:var(--pwc-ink);
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+header{
+  background:linear-gradient(135deg,var(--pwc-dark),#111);
+  color:#fff;
+  padding:28px 18px;
+  border-bottom:4px solid var(--pwc-orange);
+}
+
+.wrap{max-width:var(--max);margin:0 auto;}
+h1{font-size:20px;margin:0 0 6px;}
+.sub{font-size:13px;color:rgba(255,255,255,.8);margin:0;}
+.status{font-size:12px;padding:6px 10px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(255,255,255,.08);}
+
+main{padding:22px 18px 34px;}
+
+.card{
+  background:var(--pwc-card);
+  border:1px solid var(--pwc-border);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:0 2px 18px rgba(0,0,0,.05);
+}
+
+fieldset{
+  border:1px solid var(--pwc-border);
+  border-radius:var(--radius);
+  padding:14px;
+  margin-bottom:14px;
+}
+
+legend{font-weight:700;color:var(--pwc-dark);}
+label{display:block;font-size:12px;font-weight:600;margin-top:10px;}
+.help{font-size:11px;color:var(--pwc-slate);margin-top:3px;}
+
+input,select,textarea{
+  width:100%;
+  border:1px solid #CBD5E1;
+  border-radius:12px;
+  padding:9px 10px;
+  font-size:14px;
+  margin-top:4px;
+}
+
+input:focus,select:focus,textarea:focus{
+  border-color:var(--pwc-orange);
+  box-shadow:0 0 0 4px var(--pwc-focus);
+  outline:none;
+}
+
+textarea{min-height:80px;resize:vertical;}
+
+button{
+  padding:9px 12px;
+  border-radius:12px;
+  border:1px solid var(--pwc-border);
+  background:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+button.primary{
+  background:var(--pwc-orange);
+  border-color:var(--pwc-orange);
+  color:#fff;
+}
+
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="wrap">
+<h1>Artifact 1 – Use Case Intake Template (Canonical)</h1>
+<p class="sub">Canada AI use case intake form. Capture facts only. Risk approvals documented separately.</p>
+<div class="status">v3</div>
+</div>
+</header>
+
+<main>
+<div class="wrap">
+<form class="card">
+
+<fieldset>
+<legend>1. Use Case Identification</legend>
+
+<label>Use Case Name</label>
+<div class="help">Clear, concise title that distinguishes this use case.</div>
+<input type="text">
+
+<label>Short Description (2–3 sentences)</label>
+<div class="help">Summarize what the solution does, who uses it, and intended outcome.</div>
+<textarea></textarea>
+
+<label>AI Platform</label>
+<div class="help">Primary enterprise AI platform hosting the solution.</div>
+<select>
+<option value="">Select…</option>
+<option>N/A</option>
+<option>Eclipse</option>
+<option>Enterprise Instinct</option>
+<option>Microsoft Copilot</option>
+<option>Azure OpenAI</option>
+<option>AWS Bedrock</option>
+<option>Google Vertex AI</option>
+<option>Other / TBD</option>
+</select>
+
+<label>Proposed Go-Live Target</label>
+<div class="help">Target production deployment date.</div>
+<input type="date">
+
+</fieldset>
+
+<fieldset>
+<legend>2. Ownership & Accountability</legend>
+
+<label>Business Owner (Name, Role, LoS)</label>
+<div class="help">Accountable leader responsible for value realization and risk acceptance.</div>
+<input type="text">
+
+<label>Technology Owner (Name, Role)</label>
+<div class="help">Accountable for architecture, build, and operations.</div>
+<input type="text">
+
+<label>Delivery Lead</label>
+<div class="help">Optional if distinct from Technology Owner.</div>
+<input type="text">
+
+</fieldset>
+
+<fieldset>
+<legend>3. Business Context</legend>
+
+<label>Problem being solved</label>
+<div class="help">Describe operational or client pain point addressed.</div>
+<textarea></textarea>
+
+<label>Intended users</label>
+<div class="help">Primary user population.</div>
+<select>
+<option value="">Select…</option>
+<option>N/A</option>
+<option>Internal</option>
+<option>Client-facing</option>
+<option>Both</option>
+</select>
+
+<label>Expected value</label>
+<div class="help">Qualitative benefit; metrics optional.</div>
+<input type="text">
+
+</fieldset>
+
+<fieldset>
+<legend>4. Data Inputs</legend>
+
+<label>Data categories</label>
+<div class="help">Identify all categories processed (client, internal, public).</div>
+<input type="text">
+
+<label>Data sensitivity</label>
+<div class="help">Highest sensitivity classification involved.</div>
+<select>
+<option value="">Select…</option>
+<option>N/A</option>
+<option>Low</option>
+<option>Moderate</option>
+<option>High</option>
+</select>
+
+<label>Data residency assumptions</label>
+<div class="help">Specify geographic storage or processing constraints.</div>
+<input type="text">
+
+</fieldset>
+
+<fieldset>
+<legend>5. Model & Capability Description</legend>
+
+<label>Model type(s)</label>
+<div class="help">Architectural pattern (LLM, classifier, RAG, etc.).</div>
+<input type="text">
+
+<label>Hosting / Deployment Pattern</label>
+<div class="help">Select predefined hosting pattern governing data boundaries.</div>
+<select>
+<option value="">Select…</option>
+<option>N/A</option>
+<option>Pattern 1 — PwC Internal Hosted</option>
+<option>Pattern 2 — PwC Internal Hosted (Restricted)</option>
+<option>Pattern 3 — PwC Hosted (Outputs Only)</option>
+<option>Pattern 4 — PwC Hosted, Client Accessible</option>
+<option>Pattern 5 — Client Hosted, PwC App Operated</option>
+</select>
+
+<label>Fine-tuning vs prompt-only</label>
+<div class="help">Indicate whether model weights are modified.</div>
+<select>
+<option value="">Select…</option>
+<option>N/A</option>
+<option>Prompt-only</option>
+<option>Fine-tuning</option>
+<option>RAG / Retrieval-augmented</option>
+<option>Other</option>
+</select>
+
+<label>Multi-modality involved?</label>
+<div class="help">Specify if non-text inputs/outputs are used.</div>
+<select>
+<option value="">Select…</option>
+<option>N/A</option>
+<option>No (text only)</option>
+<option>Yes – Image</option>
+<option>Yes – Audio</option>
+<option>Yes – Video</option>
+<option>Yes – Other</option>
+</select>
+
+</fieldset>
+
+<fieldset>
+<legend>6. Outputs & Client Exposure</legend>
+
+<label>Output type</label>
+<div class="help">Insight, draft, recommendation, or decision support.</div>
+<input type="text">
+
+<label>Human-in-the-loop</label>
+<div class="help">Is a human required before output is finalized?</div>
+<select>
+<option value="">Select…</option>
+<option>N/A</option>
+<option>Yes</option>
+<option>No</option>
+</select>
+
+<label>Client visibility</label>
+<div class="help">Indicate whether outputs are exposed directly to clients.</div>
+<select>
+<option value="">Select…</option>
+<option>N/A</option>
+<option>None</option>
+<option>Internal enablement only</option>
+<option>Client-facing</option>
+</select>
+
+</fieldset>
+
+<fieldset>
+<legend>7. Known Constraints or Dependencies</legend>
+
+<label>Regulatory or independence considerations</label>
+<div class="help">List known regulatory, confidentiality, or independence constraints.</div>
+<textarea></textarea>
+
+<label>External system dependencies</label>
+<div class="help">Identify integrations required.</div>
+<textarea></textarea>
+
+<label>Timeline constraints</label>
+<div class="help">Hard deadlines or delivery constraints.</div>
+<textarea></textarea>
+
+</fieldset>
+
+<div class="actions">
+<button class="primary" type="button" onclick="window.print()">Print / Save as PDF</button>
+<button type="reset">Clear</button>
+</div>
+
+</form>
+</div>
+</main>
+
+</body>
+</html>

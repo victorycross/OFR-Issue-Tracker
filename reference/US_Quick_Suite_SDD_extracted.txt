@@ -1,0 +1,761 @@
++--+
+|  |
++--+
++--+
+
+Security Design Document for Applications v1.5
+[US Quick Suite Hosted (Application Name)]
+
+
+
++--+
+|  |
++--+
++--+
+
+Design Document for Use by
+Project & Technical Teams
+
+Date: [June 17 2024]
+Data Classification: Highly Confidential
+Version/ Status:[v1.0]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CONFIDENTIAL INFORMATION
+Copyright © 2024 PwC.
+Not for further distribution without prior consent of PwC. “PwC” refers to the PwC network and/or one or more of its member firms, each of which is a separate legal entity. Please see www.pwc.com/structure for further details.
+The PricewaterhouseCoopers global network or, as applicable, certain member firms of the network, each of which is a separate and independent legal entity.
+
+
+# About this document
+
+
+## Purpose
+
+The Security Design Document (SDD) describes the high-level security design for [US Quick Suite Platform]. It provides the following information:
+- solution description
+- validation of important PwC ISP security controls
+- conceptual and data views of the architecture
+- major infrastructure components
+
+
+This SDD is for Applications. For Automations, Chatbots, PowerPlatform, SaaS Solutions, etc. see: Security Design Document (SDD) page on Sharepoint.
+
+## Intended Audience
+
+- PwC Technology Team
+- Development & Implementation Staff
+- NIS Application Security Team
+- Change & Release Management
+
+
+## References
+
+
+
++---------------------------------------+--------------------------------------------------------------+---------+---------------------------------------------------+
+| Artifact Name                         | Description                                                  | Version | Location/Link                                     |
++---------------------------------------+--------------------------------------------------------------+---------+---------------------------------------------------+
+| HLD                                   | Quick Suite HLD Doc                                          | v1.0    | US IFS Quick Suite - HLD.docx                     |
+| Firewall Requests - Consolidated List | Quick Suite (Baseline) Firewall Rules for US Tech Cluster... | v1.1    | QuickSuite - FW Requests - Consolidated List.docx |
++---------------------------------------+--------------------------------------------------------------+---------+---------------------------------------------------+
+
+
+##### Table: References
+
+
+
+# 
+
+
+
+
+# 
+
+
+# Table of contents
+
+
+# 
+
+
+
+# 1. Solution description
+
+
+## 
+
+
+## 1.1 Platform Description
+
+NOTE: Different data classification categories and exposure (internal/external) will have varying security control requirements.  Data classification is determined during the Technology Registration Process but you can also use the Data Classification Wizard to determine your data’s DC.
+<Provide a description of the solution/application to provide details on its purpose, overall business functionality, key business drivers, internal/external exposure, and intended use at PwC. See ISP QRG Application Controls by Data Classification>
+
+Data Classification: Highly Confidential
+CI: CI17443286 (QuickSuite) & CI41340806 (QuickDeploy-Shared)
+US Quick Suite consists of several components, an SDK (formerly known as QuickCreate), CICD Pipelines (formerly known as QuickDeploy) and a hosting platform within US Technology & NGC CaaS. The SDK provides development teams with a prompt based (CLI) guided process of generating the right components for an application.  It will then create components such as: Microservices (NodeJS/NestJS or .NET), a Web Application (Angular), an Orchestrator, Functional Tests, Pipeline Scripts (EasyDevOps), Charts, Flux manifests, Terraform scripts, etc.  Then, using the CICD pipeline, it can deploy code to either the US Tech Kubernetes clusters or the NGC CaaS clusters, thus expediting project code creation and delivery to different environments.
+This document will focus on the Quick Suite platform's hosting infrastructure. Quick Suite utilizes managed (PaaS) Kubernetes clusters for container orchestration, specifically on AKS (Azure Kubernetes Service) and GKE (Google Kubernetes Engine) in the US Tech environment and AKS clusters in NGC CaaS (Next Gen Cloud - Container as a Service).
+NOTE: The infrastructure environment is split among (2) CIs.  This was how the original environment was deployed and when we tried to combine the two CI records, we were told this was not feasible due to ServiceNow limitations.
+
+## 1.2 Application Description
+
+
+
+## 1.3 Platform Technology Overview
+
+1.) US Tech clusters - (PaaS) consists of Sandbox and Main AKS & GKS clusters.  There are (3) Main AKS clusters (Non-Prod, Prod, and a dedicated Rancher instance) and (2) Main GKE clusters (Non-Prod & Prod).  The Sandbox environment mimics the main environment but to a smaller scale and is intended for internal testing with no active user facing workloads.  All clusters are managed and administered by Quick Suite’s Release Engineering Team (US TCS App Services).  The AKS clusters are hosted within PwC’s hybrid cloud solution and the GKE clusters have a VPN connection back to PwC’s internal network managed by NGC Ops.
+2.) NGC CaaS clusters - (PaaS) consists of (3) pairs of AKS clusters, one for each environment (Dev, Stage, Production).  The primary cluster in each pair is hosted in Azure East and the second cluster is hosted in Azure West, also serving as the secondary DR cluster.  They are all managed and administered by NGC Ops with the Release Engineering Team having an elevated level of access to the environment, but only within the context needed to support Quick Suite applications deployed into the environment.
+3.) Rancher (SUSE) - is a tool used to simplify the management of multiple Kubernetes clusters by providing a single pane of glass for the clusters and is deployed on a dedicated AKS environment.  There are (2) Rancher environments for US Tech Sandbox & Main clusters as well as (3) different Rancher instances for NGC CaaS Dev & Stage and Prod clusters.
+
+Rancher provides user management and RBAC, security policy management, capacity management and backup and recovery features for Rancher itself.  Application teams are granted access to specific Rancher Projects (typically representing an application) and manage a collection of namespaces hosted on a Kubernetes cluster.  These may represent dev or test environments as well any other supporting workloads that may be better suited in a different namespace (depending on business requirements).
+
+Rancher is deployed on a dedicated AKS instance. PwC users authenticate via Azure AD (@pwc.com account). They must also be provisioned access to specific projects in Rancher via Release Engineering Team.  Projects are logical groupings of namespaces that represent a PwC application. Application teams only have access to their specific deployments in Rancher projects.  Within their specific project, applications teams have access to their namespaces, ingress rules, deployments, services and container logs.
+4.) Azure Traffic Manager (SaaS) is used within the US Tech & NGC CaaS AKS clusters for internal DNS resolution.
+- Hostnames for applications hosted on the US Tech AKS clusters are configured to resolve to a Traffic Manager which resolves to the AKS clusters Ingress controller
+- GKE Clusters do NOT have a traffic manager involved, hostnames resolve directly to the Ingress controller on the respective clusters.
+- Applications hosted on the NGC CaaS environment leverage individual traffic managers to resolve to the Ingress controllers on clusters in Azure East and Azure West within NGC CaaS. This allows applications to determine if the traffic should flow to either cluster, but by default,  the traffic manager on the Azure East cluster is the primary cluster.
+5.) Wildcard DNS - Quick Suite utilizes a Wildcard DNS and each environment has a wildcard DNS name resolving to its respective Nginx ingress controller. The Wildcard DNS is intended for applications hosted for internal *.qd.pwcinternal.com based applications.
+
+US Tech GKE Clusters - the wildcard DNS entries resolve directly to the Nginx ingress controller of the respective cluster.
+
+US Tech AKS Clusters – uses an Azure Traffic Manager where all the application hostnames resolve to the traffic manager which then defines the proper IP address of the Ingress Controller.  This was originally intended to provide DR failover capabilities from one Azure region to another (e.g. East → West).  At the time, AKS did not provide multi-zonal support and nodes were limited to one Azure zone within a region.  Since then, AKS does now support multiple Availability zones and the US Tech clusters adopted this model, and subsequently kept the Traffic Manager in place for flexibility in updating ingress controller IPs as needed.
+
+NGC CaaS AKS Clusters – individual applications integrated with NGC CaaS have their own traffic manager that controls the east/west traffic.  There is a common traffic manager for the environment but this is intended to cover individual applications that opted out of the individual traffic manager.  Each Azure region has their own wildcard DNS names.
+
+6.) Nginx Ingress Controllers - Each Quick Suite Kubernetes cluster has one or more Nginx Ingress Controllers deployed to it and running within the cluster to manage traffic coming into the cluster.
+
+For US Tech AKS/GKE clusters:
+- Dev/Test environments normally reside within the Non-Prod cluster
+- Stage/Production environments reside within the Prod cluster.
+- Additional environments may be used by application teams (e.g. uat, perf, etc.), but would leverage either the Non-Prod or Prod cluster based on suitability.
+
+AKS
+- HTTP Nginx Ingress Controller for HTTP/HTTPS (:80/:443) traffic
+- TCP Nginx Ingress Controller for Non-HTTPS traffic used by Neo4J/Kafka/RabbitMQ apps
+- XLOS Apigee Nginx Ingress Controller for dedicated Apigee traffic
+
+GKE
+- HTTP Nginx Ingress Controller for HTTP/HTTPS (:80/:443) traffic
+- TCP Nginx Ingress Controller for non-HTTP/HTTPS traffic used by Neo4J/Kafka/RabbitMQ apps
+
+For NGC CaaS AKS clusters
+- Dev/Test environments normally reside within the Dev cluster
+- Stage environments reside within the Stage cluster.
+- Production environments reside within the Prod cluster.
+- Additional environments may be used by application teams (e.g. uat, perf, etc.), but would leverage any of the CaaS clusters based on suitability.
+- HTTP Nginx Ingress Controller for HTTP/HTTPS (:80/:443) traffic
+
+
++-------------------+--------+---------------+------------------------------------+--------------------------------------------------------+
+| Cluster           | Env    | Ingress IP    | Traffic Manager                    | WildCard DNS                                           |
++-------------------+--------+---------------+------------------------------------+--------------------------------------------------------+
+| Main AKS Non-Prod | DEV    | 10.197.120.12 | gx-zu2appdtm004.trafficmanager.net | *.dev.qd.pwcinternal.com *.east.dev.qd.pwcinternal.com |
+| Main AKS Non-Prod | TST    | 10.197.120.12 | gx-zu2appdtm004.trafficmanager.net | *.tst.qd.pwcinternal.com *.east.tst.qd.pwcinternal.com |
+| Main AKS Prod     | PERF   | 10.195.109.14 | gx-zu2appptm004.trafficmanager.net | *.perf.qd.pwcinternal.com                              |
+| Main AKS Prod     | UAT    | 10.195.109.14 | gx-zu2appptm004.trafficmanager.net | *.uat.qd.pwcinternal.com                               |
+| Main AKS Prod     | HOTFIX | 10.195.109.14 | gx-zu2appptm004.trafficmanager.net | *.hotfix.qd.pwcinternal.com                            |
+| Main AKS Prod     | STG    | 10.195.109.14 | gx-zu2appptm004.trafficmanager.net | *.stg.qd.pwcinternal.com                               |
+| Main AKS Prod     | PRD    | 10.195.109.14 | gx-zu2appptm004.trafficmanager.net | *.qd.pwcinternal.com                                   |
+|                   |        |               |                                    |                                                        |
+| Main GKE Non-Prod | DEV    | 10.198.246.17 | Not Applicable                     | *.dev.gcp.qd.pwcinternal.com                           |
+| Main GKE Non-Prod | TST    | 10.198.246.17 | Not Applicable                     | *.tst.gcp.qd.pwcinternal.com                           |
+| Main GKE Prod     | PERF   | 10.198.250.12 | Not Applicable                     | *.perf.gcp.qd.pwcinternal.com                          |
+| Main GKE Prod     | UAT    | 10.198.250.12 | Not Applicable                     | *.uat.gcp.qd.pwcinternal.com                           |
+| Main GKE Prod     | HOTFIX | 10.198.250.12 | Not Applicable                     | *.hotfix.gcp.qd.pwcinternal.com                        |
+| Main GKE Prod     | STG    | 10.198.250.12 | Not Applicable                     | *.stg.gcp.qd.pwcinternal.com                           |
+| Main GKE Prod     | PRD    | 10.198.250.12 | Not Applicable                     | *.gcp.qd.pwcinternal.com                               |
++-------------------+--------+---------------+------------------------------------+--------------------------------------------------------+
+
+
+
+
++------+---------------+----------------------+--------------------------------------------------------------+---------------------------------+--------------------------------------------------------------+
+| Env  | IP Address    | Rancher Project Name | Associated Regional WildCard DNS                             | Traffic Manager                 | Associated Global WildCard DNS                               |
++------+---------------+----------------------+--------------------------------------------------------------+---------------------------------+--------------------------------------------------------------+
+| Dev  | 10.204.79.23  | INK8S-DEV001         | *.east.dev.ngc.pwcinternal.com *.east.tst.ngc.pwcinternal... | qsdemowestqa.trafficmanager.net | *.dev.ngc.pwcinternal.com *.tst.ngc.pwcinternal.com          |
+|      | 10.202.190.20 | INK8S-DEV002         | *.west.dev.ngc.pwcinternal.com *.west.tst.ngc.pwcinternal... |                                 |                                                              |
+| Stg  | 10.204.83.23  | INK8S-STG001         | *.east.uat.ngc.pwcinternal.com *.east.perf.ngc.pwcinterna... | qsdemostg.trafficmanager.net    | *.uat.ngc.pwcinternal.com *.perf.ngc.pwcinternal.com *.st... |
+|      | 10.202.191.20 | INK8S-STG002         | *.west.uat.ngc.pwcinternal.com *.west.perf.ngc.pwcinterna... |                                 |                                                              |
+| Prod | 10.198.69.20  | INK8S-PRD001         | *.east.hotfix.ngc.pwcinternal.com *.east.ngc.pwcinternal.... | qsdemoprd.trafficmanager.net    | *.hotfix.ngc.pwcinternal.com *.ngc.pwcinternal.com *-next... |
+|      | 10.202.151.20 | INK8S-PRD002         | *.west.hotfix.ngc.pwcinternal.com *.west.ngc.pwcinternal.... |                                 |                                                              |
++------+---------------+----------------------+--------------------------------------------------------------+---------------------------------+--------------------------------------------------------------+
+
+
+7.)  Azure Redis Cache (SaaS)- is used for session management as a solution for the improper logout issue identified with various applications leveraging Quick Suite.  It is an internal-facing cache for the US Tech Quick Suite clusters (AKS & GKE) & NGC CaaS (AKS) clusters. The cache is used only by applications that require its usage due to an NIS vulnerability issue identified for that application.
+
+
++-------------+-----------------+--------------+------+-------------------------------------+
+| Environment | Redis Instance  | Redis IP     | Port | Leveraged by Clusters               |
++-------------+-----------------+--------------+------+-------------------------------------+
+| Sandbox     | gx-zu2appdrc034 | 10.205.68.4  | 6380 | US Tech Sandbox                     |
+| Non-Prod    | gx-zu2appdrc038 | 10.205.68.7  | 6380 | US Tech Non-Prod NGC CaaS Dev & Stg |
+| Prod        | gx-zu2appprc025 | 10.195.110.4 | 6380 | US Tech Prod NGC CaaS Prod          |
++-------------+-----------------+--------------+------+-------------------------------------+
+
+
+Azure Redis Cache is used to address the PEN testing vulnerability identified below:
+
+- Improper Logout:  JWT Token can be reused after a user logs out of the Web App. The PEN Testers used a man in the middle attack to intercept and/or record the traffic.  This was reported in several Quick Suite Applications.
+This vulnerability deals with user sessions not being invalidated properly in OpenAM. The QuickSuite solution will create a unique key (UUID) representing the user’s login session and stores it in the redis cache for each user upon login. As the user logs into an application, a QSLogin microservice is called to create/store the UUID value into the Redis cache. If a user logs out of the application, the QSLogout microservice is called and it clears/removes the UUID value from the session cache. If an attempt to login is made and the UUID is already present in the session store, then it will reject the login attempt.
+
+- Non-Production clusters share a common Non-Prod Redis Cache
+- Production clusters share a common Production Redis Cache
+- Cross environment communication will not be allowed and is blocked via firewall
+
+8.)  Azure Service Bus (SaaS)- is used specifically to support the Quick Suite Central application.  Quick Suite Central (which has its own CI and ARR) is managed by the Quick Suite SDK and Release Engineering teams and serves as the central hub for Quick Suite applications.  It is a web portal that is built to facilitate the creation and management of Quick Suite applications. It consists of a collection of micro-frontend web apps and microservices. We’ve utilized Azure Service Bus for efficient internal communication between these microservices.
+
+
++-------------+----------------+-----------------+------+-------------------------------+
+| Environment | Redis Instance | Service Bus  IP | Port | Leveraged by Clusters         |
++-------------+----------------+-----------------+------+-------------------------------+
+| Dev         | u2zc96cadsb01  | 52.168.133.227  | 443  | US Tech Non-Prod NGC CaaS Dev |
+| Tst         | u2zc96cadsb02  | 52.168.133.227  | 443  | US Tech Non-Prod NGC CaaS Dev |
+| Stg         | u2zc96cadsb03  | 13.92.180.208   | 443  | US Tech Prod NGC CaaS Stg     |
+| Prd         | u2z29efapsb01  | 191.236.32.191  | 443  | US Tech Prod NGC CaaS Prod    |
++-------------+----------------+-----------------+------+-------------------------------+
+
+
+
+<Please list ALL URLs associated with this Application.>
+
+
++------------------------------+---------------------------------------------+
+| Component                    | URL                                         |
++------------------------------+---------------------------------------------+
+| US Tech Rancher Main         | https://rancher.qd.pwcinternal.com          |
+| US Tech Rancher Sandbox      | https://rancher.sandbox.qd.pwcinternal.com/ |
+| NGC CaaS Rancher (Dev & Stg) | https://rancher-sandbox.pwc.com/            |
+| NGC CaaS Rancher (Prod)      | https://rancher.pwc.com/                    |
++------------------------------+---------------------------------------------+
+
+
+##### Table: Application URLs
+
+
+##### 
+
+<Please list ALL Resource Groups  associated with this Application. NOTE: Azure ONLY>
+
+
+
++----------------------+-----------------+----------------------------------------------------------+--------------------------+
+| Description          | Instance        | Subscription ID                                          | Resource Group           |
++----------------------+-----------------+----------------------------------------------------------+--------------------------+
+| Sandbox AKS Non-Prod | gx-zu2appdks019 | PZI-GXUS-N-SUB019 (5272c0f6-4bdd-4516-841e-65337316e0d9) | PZI-GXUS-N-RGP-4920-D001 |
+| Sandbox AKS Prod     | gx-zu2apppks014 | PZI-GXUS-P-SUB014 (ca023511-39b5-4cea-8594-de93644915f6) | PZI-GXUS-P-RGP-29ef-P001 |
+| Sandbox Rancher AKS  | gx-zu2appdks018 | PZI-GXUS-N-SUB019 (5272c0f6-4bdd-4516-841e-65337316e0d9) | PZI-GXUS-N-RGP-4920-D001 |
+|                      |                 |                                                          |                          |
+| Main AKS Non-Prod    | gx-zu2appdks028 | PZI-GXUS-N-SUB019 (5272c0f6-4bdd-4516-841e-65337316e0d9) | PZI-GXUS-N-RGP-c96c-D001 |
+| Main AKS Prod        | gx-zu2apppks013 | PZI-GXUS-P-SUB014 (ca023511-39b5-4cea-8594-de93644915f6) | PZI-GXUS-P-RGP-29ef-P001 |
+| Main Rancher AKS     | gx-zu2apppks001 | PZI-GXUS-P-SUB014 (ca023511-39b5-4cea-8594-de93644915f6) | PZI-GXUS-P-RGP-29ef-P001 |
+|                      |                 |                                                          |                          |
+| NGC CaaS Dev East    | caas-dev2-eus   | <Managed by NGC Ops>                                     |                          |
+| NGC CaaS Dev West    | caas-dev2-wus   | <Managed by NGC Ops>                                     |                          |
+| NGC CaaS Stage East  | caas-stg2-eus   | <Managed by NGC Ops>                                     |                          |
+| NGC CaaS Stage West  | caas-stg2-wus   | <Managed by NGC Ops>                                     |                          |
+| NGC CaaS Prod East   | caas-prd2-eus   | <Managed by NGC Ops>                                     |                          |
+| NGC CaaS Prod West   | caas-prd2-wus   | <Managed by NGC Ops>                                     |                          |
++----------------------+-----------------+----------------------------------------------------------+--------------------------+
+
+
+##### Table: Azure Resource Groups
+
+
+
+# 
+
+
+# 
+
+
+# 2. Design Architecture
+
+<This section describes key components of the solution architecture, to include data flows, software services being used, application/network segmentation, etc.>
+
+## 2.1 Platform Design Diagram and Data Flows
+
+<This subsection provides an overall view of the design architecture, including data flows, user/administrator access points, as well as validation of segmentation and security controls.>
+
+NOTE: Basic architectural diagrams and design patterns can be found here. Additionally, more advanced versions that encompass a majority of the SDD process in one visual artifact are located here.
+
+
+
+
+##### Figure 1: US Tech AKS / GKE Clusters
+
+
+
+
+##### Figure 2: NGC CaaS AKS Clusters
+
+
+
+
+
+## 2.2 Application Design Diagram and Data Flows
+
+
+
+
+
+# 
+
+
+# 3. Application Security Controls
+
+Fill out the sections below to document key security controls integrated within the application/solution. If any section or data point is not applicable to your solution, please state N/A but also include an explanation as to why (DO NOT DELETE A SECTION). Further, if the solution deviates from ISP requirements or technical standards, provide an explanation of any compensating or mitigating controls that are in place and why it does not meet the ISP requirement.
+
+## 3.1 Authentication & Access
+
+The US Quick Suite platform leverages Azure AD and PwC Identity for internal user authentication, providing secure access to the Rancher management interface and Quick Suite applications. Privileged users and administrators authenticate via PwC Identity with MFA. While external user access is currently not provided, any future integration will adhere to PwC’s security policies regarding registering/onboarding with Imperva. Service accounts and service principals are managed through Azure AD, ensuring role-based access control aligned with application requirements.
+The Quick Suite SDK provides a common authentication library that leverages the PwC Identity solution.  The specific authentication method (cert, MFA, etc) is determined by the individual applications’ data classification and business requirements.  This is normally determined by the entityID submitted by the application team during their onboarding process with PwC Identity directly.
+
+(CLICK HERE FOR EXAMPLES)
+
++--------------------------------------------------------------+------------------------------+--------------------------------------------------------------+
+| Account Type                                                 | Authentication               | Description                                                  |
++--------------------------------------------------------------+------------------------------+--------------------------------------------------------------+
+| Internal User                                                | Azure AD PwC Identity        | Rancher: users authenticate via Azure AD Quick Suite appl... |
+| External User (Client)                                       | PwC Identity                 | External user access (*.pwc.com applications) varies by a... |
+| Privileged User/Administrator                                | PwC Identity /w MFA Azure AD | Azure Portal: users authenticate via PwC Identity (admin.... |
+| Application Services/Service Accounts/Service Principal N... | Azure AD                     | AKS clusters leverage an SPN account to manage and admini... |
++--------------------------------------------------------------+------------------------------+--------------------------------------------------------------+
+
+
+##### Table: Authentication Method by Account Type
+
+
+
+## 
+
+
+## 3.2 Access Control
+
+Download blank Roles and Rights Matrix
+
+
++-----------+---------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+-----------------------------------------+--------+-------------+----------+---+---+---+---+---+--------------------------------------------------------------+
+| Territory | Role Name (Who has access)                  | Role Description                                             | Does the Role include internal, external or both users to... | What does the role have access to?                           | Describe how access is granted                               | Who approves access?                                         | How often is / will access be reviewed? | System | Application | Comments |   |   |   |   |   |                                                              |
++-----------+---------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+-----------------------------------------+--------+-------------+----------+---+---+---+---+---+--------------------------------------------------------------+
+| US        | QD-AKS-MGMT                                 | Users in this group are provisioned with *.admin.pwc.com ... | PwC Internal Users                                           | Contributor, Azure Kubernetes Service Cluster Admin Role ... | Quick Suite Release Engineering Team Members request acce... | John Yee or Jason Olmsted                                    | Quarterly                               | C      | R           | U        | D |   |   |   |   | *.admin.pwc.com accounts require MFA w/Entrust Access to ... |
+| US        | GCP Kubernetes Engine Admin/Cluster Admin   | Quick Suite Release Engineers are individually provisione... | PwC Internal Users                                           | Admin access to qd-main-nonprod, qd-main-prod, qd-sandbox... | Quick Suite Release Engineering Team Members request acce... | John Yee, Masatya Allam, Soumen Ghosh                        | Quarterly                               | C      | R           | U        | D |   |   |   |   | *.gcp.pwc.com accounts require MFA w/Entrust Access to GK... |
+| US        | US Tech Rancher Administrator               | Admin access to US Tech Rancher environment                  | PwC Internal Users                                           | Admin access to administer other admin users in US Tech R... | Provisioned by Rancher Administrators                        | John Yee, Jason Olmsted, Masatya Allam, Soumen Ghosh, Him... | Quarterly                               |        |             |          |   | C | R | U | D | Only current administrators may create additonal administ... |
+| US        | US Tech Rancher - quicksuite-re             | Admin access to US Tech Quick Suite AKS/GKE Cluster Admin... | PwC Internal Users                                           | Admin access to individual US Tech Quick Suite AKS / GKE ... | Provisioned by Rancher Administrators                        | John Yee, Jason Olmsted, Masatya Allam, Soumen Ghosh, Him... | Quarterly                               |        |             |          |   |   | R | U | D | Members of Release Engineering team are granted access to... |
+| US        | US Tech Rancher Project Owner               | Admin access to specific projects within US Tech Rancher ... | PwC Internal Users                                           | Admin access to individual US Tech Rancher Projects - ful... | Provisioned by Rancher Administrators through onboarding ... | Quick Suite Release Engineering Team                         | N/A                                     |        |             |          |   |   | R | U | D | Team members of individual applications deployed into the... |
+| US        | NGC CaaS Rancher Quick Suite Clusters       | Read access to NGC CaaS Quick Suite AKS Clusters             | PwC Internal Users                                           | Read Access to NGC CaaS Quick Suite AKS Clusters             | Requested via support ticket (link) to NGC Ops only for Q... | NGC Ops                                                      | N/A                                     |        |             |          |   |   | R |   |   | Members of Release Engineering team are granted Read acce... |
+| US        | NGC CaaS Rancher Quick Suite Project Owners | Admin access to specific projects within NGC CaaS Quick S... | PwC Internal Users                                           | Admin access to individual NGC CaaS Rancher Projects - fu... | Provisioned through NGC ASE Creation Process                 | NGC Ops                                                      | N/A                                     |        |             |          |   |   | R | U | D | Team members of individual applications deployed into the... |
++-----------+---------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------------------------+-----------------------------------------+--------+-------------+----------+---+---+---+---+---+--------------------------------------------------------------+
+
+
+
+## 3.3 Encryption & Key Management
+
+(CLICK HERE FOR EXAMPLES)
+
++---------------------------+----------------------+-------------+
+| Encryption Type           | Standards/Software   | Description |
++---------------------------+----------------------+-------------+
+| Encryption In Transit     | TLS 1.2              |             |
+| Encryption At Rest        | Yes                  |             |
+| Encryption Key Management | Platform Managed Key |             |
++---------------------------+----------------------+-------------+
+
+
+##### Table: Encryption & Key Management
+
+
+## 
+
+
+## 3.4 Firewalls & Network/Application Segmentation
+
+GUIDANCE: Web Application Protection Service, Global API Management
+(CLICK HERE FOR EXAMPLES)
+
+US Quick Suite clusters have a standard set of firewall rules put in place for the US Tech clusters, a similar set of rules were provided to the NGC Containers team to submit rules for the NGC CaaS clusters dedicated for Quick Suite applications.
+Applications that are hosted on the respective clusters may need to submit additional firewall rules to allow connectivity to application dependent resources.  This is normally handled by the project team or app support team for the respective application.
+
+
+
++--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------+---------------------------------------+-------------------------+----------------------------------+
+| Allow cluster to connect to Mongo Atlas database over por... |                                                              |                                      |                                       |                         |                                  |
++--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------+---------------------------------------+-------------------------+----------------------------------+
+| 10.198.254.176/28                                            | *.mongodb.net                                                | pg-us-n-app-823785                   | TCP 27017                             | Sandbox Non-Prod        | GKE Cluster -> Mongo Atlas       |
+| 10.198.145.160/28                                            | *.mongodb.net                                                | pg-us-p-app-098468                   | TCP 27017                             | Sandbox Prod            | GKE Cluster -> Mongo Atlas       |
+| 10.198.246.0/24                                              | *.mongodb.net                                                | pg-us-n-app-357186                   | TCP 27017                             | Main Non-Prod           | GKE Cluster -> Mongo Atlas       |
+| 10.198.250.0/23                                              | *.mongodb.net                                                | pg-us-p-app-529293                   | TCP 27017                             | Main Prod               | GKE Cluster -> Mongo Atlas       |
+| 10.196.82.192/27                                             | *.mongodb.net                                                | gx-zu2appdks019                      | TCP 27017                             | Sandbox Non-Prod        | AKS Cluster -> Mongo Atlas       |
+| 10.195.108.0/24                                              | *.mongodb.net                                                | gx-zu2apppks014                      | TCP 27017                             | Sandbox Prod            | AKS Cluster -> Mongo Atlas       |
+| 10.197.120.0/26                                              | *.mongodb.net                                                | gx-zu2appdks028                      | TCP 27017                             | Main AKS Non-Prod       | AKS Cluster -> Mongo Atlas       |
+| 10.195.109.0/24                                              | *.mongodb.net                                                | gx-zu2apppks013                      | TCP 27017                             | Main AKS Prod           | AKS Cluster -> Mongo Atlas       |
+| 10.196.82.192/27                                             | *.database.windows.net                                       | gx-zu2appdks019                      | TCP 1433                              | Sandbox Non-Prod        | AKS Cluster -> Azure MSSQL       |
+| 10.196.82.192/27                                             | *.database.azure.com                                         | gx-zu2appdks019                      | TCP 3306                              | Sandbox Non-Prod        | AKS Cluster -> Azure SQL         |
+| 10.195.108.0/24                                              | *.database.windows.net                                       | gx-zu2apppks014                      | TCP 1433                              | Sandbox Prod            | AKS Cluster -> Azure MSSQL       |
+| 10.195.108.0/24                                              | *.database.azure.com                                         | gx-zu2apppks014                      | TCP 3306                              | Sandbox Prod            | AKS Cluster -> Azure SQL         |
+| 10.197.120.0/26                                              | *.database.windows.net                                       | gx-zu2appdks028                      | TCP 1433                              | Main AKS Non-Prod       | AKS Cluster -> Azure MSSQL       |
+| 10.197.120.0/26                                              | *.database.azure.com                                         | gx-zu2appdks028                      | TCP 3306                              | Main AKS Non-Prod       | AKS Cluster -> Azure SQL         |
+| 10.195.109.0/24                                              | *.database.windows.net                                       | gx-zu2apppks013                      | TCP 1433                              | Main AKS Prod           | AKS Cluster -> Azure MSSQL       |
+| 10.195.109.0/24                                              | *.database.azure.com                                         | gx-zu2apppks013                      | TCP 3306                              | Main AKS Prod           | AKS Cluster -> Azure SQL         |
+| Allow bi-directional communication between Rancher and Cl... |                                                              |                                      |                                       |                         |                                  |
+| 10.196.83.128/27                                             | 10.198.254.176/28                                            | pg-us-n-app-823785                   | TCP 80, 443                           | Sandbox Non-Prod        | GKE Rancher -> Cluster           |
+| 10.198.254.176/28                                            | 10.196.83.128/27                                             | pg-us-n-app-823785                   | TCP 80, 443                           | Sandbox Non-Prod        | GKE Cluster -> Rancher           |
+| 10.198.145.160/28                                            | 10.196.83.128/27                                             | pg-us-p-app-098468                   | TCP 80, 443                           | Sandbox Prod            | GKE Cluster -> Rancher           |
+| 10.196.83.128/27                                             | 10.198.145.160/28                                            | pg-us-p-app-098468                   | TCP 80, 443                           | Sandbox Prod            | GKE Rancher -> Cluster           |
+| 10.198.246.0/24                                              | 10.195.104.0/27                                              | pg-us-n-app-357186                   | TCP 80, 443                           | Main Non-Prod           | GKE Cluster -> Rancher           |
+| 10.195.104.0/27                                              | 10.198.246.0/24                                              | pg-us-n-app-357186                   | TCP 80, 443                           | Main Non-Prod           | GKE Rancher -> Cluster           |
+| 10.195.104.0/27                                              | 10.198.250.0/23                                              | pg-us-p-app-529293                   | TCP 80, 443                           | Main Prod               | GKE Rancher -> Cluster           |
+| 10.198.250.0/23                                              | 10.195.104.0/27                                              | pg-us-p-app-529293                   | TCP 80, 443                           | Main Prod               | GKE Cluster -> Rancher           |
+| 10.196.83.128/27                                             | 10.196.82.192/27                                             | gx-zu2appdks019                      | TCP 80, 443                           | Sandbox Non-Prod        | AKS Rancher -> Cluster           |
+| 10.196.82.192/27                                             | 10.196.83.128/27                                             | gx-zu2appdks019                      | TCP 80, 443                           | Sandbox Non-Prod        | AKS Cluster -> Rancher           |
+| 10.195.108.0/24                                              | 10.196.82.192/27                                             | gx-zu2apppks014                      | TCP 80, 443                           | Sandbox Prod            | AKS Rancher -> Cluster           |
+| 10.195.108.0/24                                              | 10.196.83.128/27                                             | gx-zu2apppks014                      | TCP 80, 443                           | Sandbox Prod            | AKS Cluster -> Rancher           |
+| 10.197.120.0/26                                              | 10.195.104.0/27                                              | gx-zu2appdks028                      | TCP 80, 443                           | Main AKS Non-Prod       | AKS Cluster -> Rancher           |
+| 10.195.104.0/27                                              | 10.197.120.0/26                                              | gx-zu2appdks028                      | TCP 80, 443                           | Main AKS Non-Prod       | AKS Rancher -> Cluster           |
+| 10.195.109.0/24                                              | 10.195.104.0/27                                              | gx-zu2apppks013                      | TCP 80, 443                           | Main AKS Prod           | AKS Cluster -> Rancher           |
+| 10.195.104.0/27                                              | 10.195.109.0/24                                              | gx-zu2apppks013                      | TCP 80, 443                           | Main AKS Prod           | AKS Rancher -> Cluster           |
+| Enable any user in PwC network to connect to cluster over... |                                                              |                                      |                                       |                         |                                  |
+| 10.0.0.0/8                                                   | 10.198.254.176/28                                            | pg-us-n-app-823785                   | TCP 80, 443                           | Sandbox Non-Prod        | GKE PwC Net -> Cluster           |
+| 10.0.0.0/8                                                   | 10.198.145.160/28                                            | pg-us-p-app-098468                   | TCP 80, 443                           | Sandbox Prod            | GKE PwC Net -> Cluster           |
+| 10.0.0.0/8                                                   | 10.198.246.0/24                                              | pg-us-n-app-357186                   | TCP 80, 443                           | Main Non-Prod           | GKE PwC Net -> Cluster           |
+| 10.0.0.0/8                                                   | 10.198.250.0/23                                              | pg-us-p-app-529293                   | TCP 80, 443                           | Main Prod               | GKE PwC Net -> Cluster           |
+| 10.0.0.0/8                                                   | 10.196.82.192/27                                             | gx-zu2appdks019                      | TCP 80, 443                           | Sandbox Non-Prod        | AKS PwC Net -> Cluster           |
+| 10.0.0.0/8                                                   | 10.195.108.0/24                                              | gx-zu2apppks014                      | TCP 80, 443                           | Sandbox Non-Prod        | AKS PwC Net -> Cluster           |
+| 10.0.0.0/8                                                   | 10.196.83.128/27                                             | gx-zu2apppks018                      | TCP 80, 443                           | Sandbox Rancher         | AKS PwC Net -> Cluster           |
+| 10.0.0.0/8                                                   | 10.195.104.0/27                                              | gx-zu2apppks001                      | TCP 80, 443                           | Main Rancher            | AKS PwC Net -> Cluster           |
+| 10.0.0.0/8                                                   | 10.197.120.0/26                                              | gx-zu2appdks028                      | TCP 80, 443                           | Main AKS Non-Prod       | AKS PwC Net -> Cluster           |
+| 10.0.0.0/8                                                   | 10.195.109.0/24                                              | gx-zu2apppks013                      | TCP 80, 443                           | Main AKS Prod           | AKS PwC Net -> Cluster           |
+| Enable connectivity between cluster nodes and master node... |                                                              |                                      |                                       |                         |                                  |
+| 10.196.82.192/27                                             | gx-zu2appdks019-a42e934e.hcp.eastus.azmk8s.io gx-zu2appdk... | gx-zu2appdks019                      | TCP 22, 443, 9000, 10250              | Sandbox Non-Prod        | AKS Cluster -> K8s Master        |
+| 10.195.108.0/24                                              | gx-zu2apppks010-ff34c41d.hcp.eastus.azmk8s.io gx-zu2apppk... | gx-zu2apppks014                      | TCP 22, 443, 9000, 10250              | Sandbox Prod            | AKS Cluster -> K8s Master        |
+| 10.196.83.128/27                                             | gx-zu2appd-pzi-gxus-n-rgp-4-5272c0-c7dd8b61.hcp.eastus.az... | gx-zu2appdks018                      | TCP 22, 443, 9000, 10250              | Sandbox Rancher         | AKS Cluster -> K8s Master        |
+| 10.195.104.0/27                                              | gx-zu2apppks001-d8d8cce4.hcp.eastus.azmk8s.io gx-zu2apppk... | gx-zu2apppks001                      | TCP 22, 443,1194, 9000, 10250         | Main Rancher            | AKS Cluster -> K8s Master        |
+| 10.197.120.0/26                                              | gx-zu2appdks028-d6c9e46a.hcp.eastus.azmk8s.io                | gx-zu2appdks028                      | TCP 22, 80, 443, 1194, 9000, 10250    | Main AKS Non-Prod       | AKS Cluster -> K8s Master        |
+| 10.195.109.0/24                                              | gx-zu2apppks013-290f459b.hcp.eastus.azmk8s.io                | gx-zu2apppks013                      | TCP 22, 80, 443, 1194, 9000, 10250    | Main AKS Prod           | AKS Cluster -> K8s Master        |
+| Enable connectivity to pwc internal services MSSQL, Layer... |                                                              |                                      |                                       |                         |                                  |
+| 10.198.254.176/28                                            | 10.16.28.0/24 10.16.29.0/24 10.16.32.0/24 10.20.245.0/24 ... | pg-us-n-app-823785                   | 14330, 1433 15210, 1512 80, 443, 7443 | Sandbox Non-Prod        | GKE Cluster -> Internal Services |
+| 10.198.145.160/28                                            | 10.16.28.0/24 10.16.29.0/24 10.16.32.0/24 10.20.245.0/24 ... | pg-us-p-app-098468                   | 14330, 1433 15210, 1512 80, 443, 7443 | Sandbox Prod            | GKE Cluster -> Internal Services |
+| 10.198.246.0/24                                              | 10.16.28.0/24 10.16.29.0/24 10.16.32.0/24 10.20.245.0/24 ... | pg-us-n-app-357186                   | 14330, 1433 15210, 1512 80, 443, 7443 | Main Non-Prod           | GKE Cluster -> Internal Services |
+| 10.198.250.0/23                                              | 10.16.28.0/24 10.16.29.0/24 10.16.32.0/24 10.20.245.0/24 ... | pg-us-p-app-529293                   | 14330, 1433 15210, 1512 80, 443, 7443 | Main Prod               | GKE Cluster -> Internal Services |
+| 10.196.82.192/27                                             | 10.16.28.0/24 10.16.29.0/24 10.16.32.0/24 10.20.245.0/24 ... | gx-zu2appdks019                      | 14330, 1433 15210, 1512 80, 443, 7443 | Sandbox Non-Prod - East | AKS Cluster -> Internal Services |
+| 10.195.108.0/24                                              | 10.16.28.0/24 10.16.29.0/24 10.16.32.0/24 10.20.245.0/24 ... | gx-zu2apppks014                      | 14330, 1433 15210, 1512 80, 443, 7443 | Sandbox Prod            | AKS Cluster -> Internal Services |
+| 10.197.120.0/26                                              | 10.16.28.0/24 10.16.29.0/24 10.16.32.0/24 10.20.245.0/24 ... | gx-zu2appdks028                      | 14330, 1433 15210, 1512 80, 443, 7443 | Main AKS Non-Prod       | AKS Cluster -> Internal Services |
+| 10.195.109.0/24                                              | 10.16.28.0/24 10.16.29.0/24 10.16.32.0/24 10.20.245.0/24 ... | gx-zu2apppks013                      | 14330, 1433 15210, 1512 80, 443, 7443 | Main AKS Prod           | AKS Cluster -> Internal Services |
+| SMTP Relay (us-relayvipintprod.nam.pwcinternal.com)          |                                                              |                                      |                                       |                         |                                  |
+| 10.198.254.176/28                                            | 10.16.222.65                                                 | pg-us-n-app-823785                   | TCP 25, 587                           | Sandbox Non-Prod        | GKE Cluster -> SMTP Relay        |
+| 10.198.145.160/28                                            | 10.16.222.65                                                 | pg-us-p-app-098468                   | TCP 25, 587                           | Sandbox Prod            | GKE Cluster -> SMTP Relay        |
+| 10.198.246.0/24                                              | 10.16.222.65                                                 | pg-us-n-app-357186                   | TCP 25, 587                           | Main Non-Prod           | GKE Cluster -> SMTP Relay        |
+| 10.198.250.0/23                                              | 10.16.222.65                                                 | pg-us-p-app-529293                   | TCP 25, 587                           | Main Prod               | GKE Cluster -> SMTP Relay        |
+| 10.196.82.192/27                                             | 10.16.222.65                                                 | gx-zu2appdks019                      | TCP 25, 587                           | Sandbox Non-Prod - East | AKS Cluster -> SMTP Relay        |
+| 10.195.108.0/24                                              | 10.16.222.65                                                 | gx-zu2apppks010                      | TCP 25, 587                           | Sandbox Prod - East     | AKS Cluster -> SMTP Relay        |
+| 10.197.120.0/26                                              | 10.16.222.65                                                 | gx-zu2appdks028                      | TCP 25, 587                           | Main AKS Non-Prod       | AKS Cluster -> SMTP Relay        |
+| 10.195.109.0/24                                              | 10.16.222.65                                                 | gx-zu2apppks013                      | TCP 25, 587                           | Main AKS Prod           | AKS Cluster -> SMTP Relay        |
+| NTP  (ntp.ubuntu.com)                                        |                                                              |                                      |                                       |                         |                                  |
+| 10.197.120.0/26                                              | ntp.ubuntu.com                                               | gx-zu2appdks028                      | TCP 123                               | Main AKS Non-Prod       | AKS Cluster ->Public NTP         |
+| 10.195.109.0/24                                              | ntp.ubuntu.com                                               | gx-zu2apppks013                      | TCP 123                               | Main AKS Prod           | AKS Cluster -> Public NTP        |
+| TCP LB access from PwC network to GKE environments (RITM2... |                                                              |                                      |                                       |                         |                                  |
+| 10.0.0.0/8                                                   | 10.198.246.36                                                | qd-main-nonprod (pg-us-n-app-357186) | TCP 30001-32767                       | Main Non-Prod           | PwC Network -> GCP               |
+| 10.0.0.0/8                                                   | 10.198.251.253                                               | qd-main-prd (pg-us-p-app-529293)     | TCP 30001-32767                       | Main Prod               | PwC Network -> GCP               |
+| AKS Cluster Access to Confluence Kafka (SaaS) - RITM4309007  |                                                              |                                      |                                       |                         |                                  |
+| 10.198.254.176/28                                            | pkc-12nzv.eastus.azure.confluent.cloud                       | pg-us-n-app-823785                   | TCP 9092                              | Sandbox GKE NonProd     | GKE Cluster -> Kafka (SaaS)      |
+| 10.198.145.160/28                                            | pkc-12nzv.eastus.azure.confluent.cloud                       | pg-us-p-app-098468                   | TCP 9092                              | Sandbox GKE Prod        | GKE Cluster -> Kafka (SaaS)      |
+| 10.198.246.0/24                                              | pkc-12nzv.eastus.azure.confluent.cloud                       | pg-us-n-app-357186                   | TCP 9092                              | Main GKE Non-Prod       | GKE Cluster -> Kafka (SaaS)      |
+| 10.198.250.0/23                                              | pkc-12nzv.eastus.azure.confluent.cloud                       | pg-us-p-app-529293                   | TCP 9092                              | Main GKE Prod           | GKE Cluster -> Kafka (SaaS)      |
+| 10.196.83.128/27                                             | pkc-12nzv.eastus.azure.confluent.cloud                       | gx-zu2appdks018                      | TCP 9092                              | Sandbox AKS Rancher     | AKS Cluster -> Kafka (SaaS)      |
+| 10.196.82.192/27                                             | pkc-12nzv.eastus.azure.confluent.cloud                       | gx-zu2appdks019                      | TCP 9092                              | Sandbox AKS Non-Prod    | AKS Cluster -> Kafka (SaaS)      |
+| 10.195.108.0/24                                              | pkc-12nzv.eastus.azure.confluent.cloud                       | gx-zu2apppks014                      | TCP 9092                              | Sandbox AKS Prod        | AKS Cluster -> Kafka (SaaS)      |
+| 10.197.120.0/26                                              | pkc-12nzv.eastus.azure.confluent.cloud                       | gx-zu2appdks028                      | TCP 9092                              | Main AKS Non-Prod       | AKS Cluster -> Kafka (SaaS)      |
+| 10.195.109.0/24                                              | pkc-12nzv.eastus.azure.confluent.cloud                       | gx-zu2apppks013                      | TCP 9092                              | Main AKS Prod           | AKS Cluster -> Kafka (SaaS)      |
+| 10.195.104.0/27                                              | pkc-12nzv.eastus.azure.confluent.cloud                       | gx-zu2apppks001                      | TCP 9092                              | Main AKS Rancher        | AKS Cluster -> Kafka (SaaS)      |
++--------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------+---------------------------------------+-------------------------+----------------------------------+
+
+
+
+
++-----------+-------------+--------+-------------+----------------+------------+---------------------+-------------------------------+
+| Component | Description | Source | Destination | Port/ Protocol | Auth. Type | WAP/ APIM protected | Interface Data Classification |
++-----------+-------------+--------+-------------+----------------+------------+---------------------+-------------------------------+
+|           |             |        |             |                |            |                     |                               |
+|           |             |        |             |                |            |                     |                               |
++-----------+-------------+--------+-------------+----------------+------------+---------------------+-------------------------------+
+
+
+##### Table: Interface Description
+
+
+
+
+## 3.5 Logging / Monitoring / Alerting
+
+Logging:
+
+Container Logs:
+
+The Quick Suite US Tech & NGC CaaS clusters are all configured to forward logs to PwC’s instance of Splunk.  All application pod logs are forwarded to Splunk using different methods (Rancher Logging using Fluentd & OTEL Forwarder [US Tech] and Splunk Connect for Kubernetes [NGC CaaS]).
+
+US Tech clusters forward logs to an index=us_container in Splunk
+NGC CaaS clusters forward logs to an index=nextgen_glbl in Splunk
+
+Logs in Splunk are retained for 30 days
+
+Kubernetes Logs:
+
+US Tech AKS Clusters Log the following to a Log Analytics Workspace:
+- Kubernetes API Server
+- Kubernetes Audit Admin Logs
+- Kubernetes Controller Manager
+- Logs are retained for 30 days
+
+US Tech GKE Clusters Logging features enabled:
+- System
+- Workloads
+- Logs are retained for 30 days
+
+Monitoring:
+
+The Quick Suite US Tech & NGC CaaS clusters are all configured with PwC’s Datadog environment, using daemon set for monitoring purposes.  Individual applications hosted on the platform may choose to use Datadog APM for advanced monitoring depending on their specific needs.
+
+Sample link to DD Monitoring of Quick Suite Clusters - Link
+
+
+Alerting:
+
+The Quick Suite US Tech & NGC CaaS clusters leverage PwC’s Datadog for Alerting purposes (uses the same daemonset for monitoring).  Monitors are configured to detect issues with the Kubernetes environment for US Tech clusters and are sent to the Release Engineering team.  Issues detected with the NGC CaaS clusters are sent to the NGC Ops team.
+
+Sample link to Datadog Alerts for Quick Suite Clusters - Link
+
+GUIDANCE: Enterprise Logging & Reporting
+(CLICK HERE FOR EXAMPLES)
+
++----------------------------+-----------------------------------------------+---------------+-----------------+
+| Log Type                   | Logging Platforms (PwC Splunk, Log Analytics) | Log Retention | Review Schedule |
++----------------------------+-----------------------------------------------+---------------+-----------------+
+| Application Container Logs | PwC Splunk                                    | 30 days       | N/A             |
+| Kubernetes                 | Cloud Vendor Platform                         | 30 days       | N/A             |
+|                            |                                               |               |                 |
++----------------------------+-----------------------------------------------+---------------+-----------------+
+
+
+##### Table: Logging
+
+
+## 3.6 Security Stack
+
+
+### 1. Access to K8S Clusters
+
+- Azure Active Directory (AAD): Used for authenticating users (*@admin.pwc.com & *@gcp.pwc.com) and controlling access to the US Tech AKS & GKE cluster. Integrates with Kubernetes Role-Based Access Control (RBAC).
+- Azure AD Groups: Manages access to Azure resources, including AKS, using role assignments.
+- GCP Groups: Manages access to Azure resources, including AKS, using role assignments.
+
+### 2. Network Security
+
+- Network Policies: Calico network policy defines rules limiting traffic between pods in all the clusters.
+- Azure Network Security Group (NSG): AKS clusters have NSGs in place that are managed by PwC’s Network/Perimeter team.
+- Azure Virtual Network (VNet): Segregates and isolates the AKS cluster network. Subnets, Network Security Groups (NSGs) are used for fine-grained control.
+- Google Cloud Virtual Private Cloud (VPC) & Firewall - used to isolate network environments with GCP and limit access to approved endpoints and are administered by PwC’s NGC Operations team.
+- Palo Alto Firewall: AKS clusters sit behind the Palo Alto firewall managed by the PwC Perimeter team.
+- ExpressRoute (Azure) & VPN (GCP) : Provide secure connectivity between on-premises networks and Azure & Google Cloud.
+- HTTPS & TLS Certificates: Access to applications require HTTPS and application webapps are configured with TLS certificates
+
+### 3. Data Security
+
+- Azure Key Vault: Leveraged to store credentials used by the Release Engineering team.
+- Encryption: Uses encryption for data at rest and in transit. Encryption at rest with a platform managed key is configured for the AKS/GKE clusters.
+
+### 4. Container Security
+
+- Container Image Scanning: Leverages PwC’s Twistlock (and JFrog X-Ray) to scan container images for vulnerabilities.
+- PwC Private Container Registry: Leverages PwC’s JFrog Artifactory as the container registry.  Artifactory access uses PwC Identity for access to container images.
+- Quick Suite SECT Team: Dedicated team that works with application teams on vulnerabilities identified by Twistlock
+
+### 5. Cluster Security
+
+- Node Security: Ensure nodes are securely configured and regularly updated.  Release Engineering does not access the nodes directly
+- OS and Kubernetes Patching: Kubernetes on the control plane and the data plane is upgraded in accordance with the support windows provided by Microsoft and GCP.
+
+
+## 3.7 Software Development Life Cycle (SDLC)
+
+Application Code & Images
+Individual applications that leverage the Quick Suite SDK store their application code within ADO (Azure DevOps) repos specific to their organization and project.  Container images that are built and deployed using the Quick Suite CICD pipelines are configured to store images in the Quick Suite project with PwC’s Artifactory Instance - Project #G00003
+
+https://artifacts-west.pwc.com/ui/repos/tree/General/g00003-build-info?projectKey=g00003
+
+CICD Pipeline Scripts
+As part of the Quick Suite SDK CLI, there is @easydevops repo that is included in the deployment process and contains a series of scripts and tools used as part of the deployment.  Among them are pipeline scripts that are configured to deploy build and release code to the US Tech AKS/GKE clusters or NGC CaaS AKS clusters.
+
+
+## 3.8 Third Party Software & Services
+
+
+Rancher
+Rancher (SUSE Labs) is an open source tool that simplifies the management of Kubernetes clusters by providing a single pane of glass in our cross vendor clusters.  For the US Tech clusters, Release Engineering manages and administers the Rancher instance and for NGC CaaS clusters, NGC Ops manages and administers a separate Rancher instance.
+
+It solves three primary issues for Kubernetes users:
+
+- It is a multi-cluster management tool for administering Kubernetes clusters. Whether it is an existing Kubernetes cluster, or hosted kubernetes cluster like GKE, EKS or AKS, Rancher can centrally manage all of these clusters. Specifically, it addresses user management and RBAC, security policy management, capacity management, delegated administration, Rancher cluster backup and recovery, etc.
+- It provides a UI and an API and for users to interface with all their managed Kubernetes clusters. Native Kubernetes tools are also accessible to users via Rancher. This layer provides integrated tooling that makes using Kubernetes quite easy.
+- All of this is delivered as a single platform, so you can move from version to version of Rancher and upgrade managed clusters independently.
+
+Rancher is deployed in a dedicated AKS instance. PwC users authenticate via Azure AD (@pwc.com account). They must also be provisioned access to specific projects in Rancher.  Projects are logical groupings of namespaces that represent a PwC application.
+
+Application teams have access to their specific deployments through Rancher projects.  Within their specific project, applications teams have access to their namespaces, deployment, and pod logs.
+
+Nginx Ingress
+Each Quick Suite Kubernetes cluster utilizes one or more Nginx Ingress Controllers (https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx) for all the respective environments contained within that cluster.  This applies to both US Tech and NGC CaaS clusters.
+
+GUIDANCE: Guidance: Open Source Software, Open Source Assessment, Black Duck OSS Scanner, Third Party Risk Management (TPRM)
+(CLICK HERE FOR EXAMPLES)
+
++--------------------------+------+--------------------------------------------------------------+--------------------+
+| Software Name            | Type | Description                                                  | Approval Reference |
++--------------------------+------+--------------------------------------------------------------+--------------------+
+| Rancher                  |      | Used to manage AKS and/or GKE Kubernetes Clusters            |                    |
+| Nginx Ingress Controller |      | Used to managed ingress traffic into the AKS or GKE K8S c... |                    |
+|                          |      |                                                              |                    |
++--------------------------+------+--------------------------------------------------------------+--------------------+
+
+
+##### Table: Open Source Software Utilized
+
+
+## 
+
+
+## 3.9 Disaster Recovery, Business Continuity & Incident Response Processes
+
+Disaster recovery for critical applications and critical services must be planned and documented. For more information please refer to this site: Service Portfolio - Disaster Recovery/Business Continuity (DR/BC) (FY23).  Here is a  Disaster Recovery Plan Template to help with your planning efforts.
+A key component of a territory’s data protection program is to have organizational and technical measures in place to secure personal data it processes from the risk of accidental or unlawful destruction, loss, alteration, or unauthorised disclosure or access. Every application team will need to onboard to the PwC Monitoring and Alerting Service to facilitate incident response actions.
+US Tech Environment
+
+The AKS / GKE clusters were built with Availability Zones enabled within the respective vendors (Microsoft/Google). Within a cloud region there are multiple availability zones located within an Azure or GCP Region, Availability Zones allow a cluster to place a node within one zone (which can consist of one or more physical data centers). Each region consists of multiple zones, so within say the Azure East region, the AKS cluster uses (3) availability zones, meaning each node (vm machine) that is part of the Kubernetes cluster is staggered across the 3 different availability zones within Azure East.
+
+If there's 30 nodes and one zone experienced a failure, roughly 1/3 of the total nodes sitting in that one zone would become unavailable.  Kubernetes would scale additional nodes on the other zones (auto-scale is enabled on the clusters) and Kubernetes scheduler would re-schedule deployments (pods) to the available new nodes.  Depending on the pods configured for a particular application, there may be a slight outage window while the pods are rescheduled.  As a best practice for Production environments, each workload should have (2) or more pods configured for each of their deployments.  If the app is utilizing more than 1 pod for your app, the corresponding kubernetes service would load balance the requests and no outages should occur.
+US Tech AKS / GKE clusters are provisioned in a single cloud region with multiple availability zones.  AKS is in Azure East with (3) availability zones (zone1, zone2, zone3).  GKE is in GCP US-East1 (us-east1-b, us-east1-c, us-east1-d).  If the entire region becomes unavailable for a particular cloud provider, then the cluster sitting in that region would also become unavailable.
+NGC CaaS Environment
+Quick Suite’s CICD Pipelines are configured to deploy workloads to both Azure East & West if the application is hosted on NGC CaaS and the application requires DR capabilities, based on library variables set within ADO for the CICD pipeline.
+NGC CaaS AKS clusters are provisioned in two cloud regions (Azure East & Azure West).  Within Azure East, which is the primary region in which all applications are deployed, NGC is in the process (June  through Aug 2024 update window) of rebuilding the node pools to leverage (3) availability zones.  Azure.  Azure West serves as the Disaster Recovery (DR) zone for Quick Suite applications deployed to NGC CaaS.  Apps are normally deployed as a warm or hot standby in Azure West.
+The NGC CaaS AKS clusters deployed in Azure West only leverage one availability zone (Azure West does not support multiple availability zones).  As the need arises within NGC CaaS, the cluster will be rebuilt in one of the other Azure West Regions that do support multiple availability zones at a later time.
+
+## 3.10 QuickSuite Optional Services
+
+
+
+
+# 
+
+
+# Appendix A - ACQ Information
+
+NOTE: This section is for application/solution team situational awareness to understand the background process of assessing the application for risks and compliance with firm standards.
+Application Readiness Reviews (ARR) are a mandatory security review service that the Application Readiness team conducts for all tools or technologies hosted in the production environment or any technology service hosted in a non-production environment with access to production data or production data systems (i.e. via API).
+The Application Compliance Questionnaire (ACQ) is completed as part of the ARR process. The ACQ enables the uniform capture of Application Readiness assessment results by NIS in Archer for compliance scoring.
+Project teams navigating through the ARR process will be asked to provide architectural design documentation showcasing security controls (Security Design Document), which will be used as the AR team completes the ACQ and other ARR processes. By completing the Security Design Document in advance of requesting ARR, project teams can reduce the overall cycle time to release.
+
+
+# 
+
+
+# Appendix B - Glossary
+
+[INSERT CONTENT HERE (should be completed by the Technical Writer)]
+
+This section provides an alphabetic list of definitions of terms, acronyms and abbreviations used throughout this document.
+
+For additional Terms and Definitions see the link in Appendix D.
+
+
++---------------------------+--------------------------------------------------+
+| Term/Abbreviation/Acronym | Definition                                       |
++---------------------------+--------------------------------------------------+
+| ACQ                       | Application Compliance Questionnaire             |
+| ARR                       | Application Readiness Review                     |
+| CCM                       | Cloud Compliance Matrix                          |
+| COTS                      | Commercial off-the-shelf                         |
+| CRS                       | Code Review Services                             |
+| IaaS                      | Infrastructure as a Service                      |
+| ISP                       | Information Security Policy                      |
+| OSS                       | Open Source Software                             |
+| PaaS                      | Platform as a Service                            |
+| SaaS                      | Software as a Service                            |
+| SDD                       | Security Design Document                         |
+| SDLC                      | Software Development Life Cycle                  |
+| SRT                       | Security Readiness Testing (Penetration Testing) |
+| TPPT                      | Third Party Project Tracking (Archer)            |
++---------------------------+--------------------------------------------------+
+
+
+##### Table: Glossary
+
+
+
+# Appendix C - Document approval & history
+
+[INSERT CONTENT HERE]
+
+Described below are the various document approvers.
+
+
++------+------+------+
+| Name | Role | Date |
++------+------+------+
+|      |      |      |
++------+------+------+
+
+
+##### Table: Document approvers
+
+
+#### 
+
+[INSERT CONTENT HERE]
+
+Described below are the various iterations in the development of this document.
+
+
++---------+------+-------------+-------------+
+| Version | Date | Description | Contributor |
++---------+------+-------------+-------------+
+|         |      |             |             |
++---------+------+-------------+-------------+
+
+
+##### Table: Document history
+
+
+##### 
+
+
+
+# 
+
+
+# Appendix D - Standards & References
+
+
+
++--------------------------------------------------------------+
+| PwC Network Information Security Policy Page Developer’s ... |
++--------------------------------------------------------------+
+| FY24 PwC Network Information Security Policy                 |
+| FY24 PwC Network Information Security Controls Standard      |
+| PwC Information Security Policy (ISP) Technical Standard     |
+| Application Security Controls by Data Classification - IS... |
+| NIS Application Readiness Review Process Overview Page       |
+| NIS Application Readiness Process Quick Reference            |
+| Information Security Policy (ISP) Application Readiness S... |
+| ISP Terms and Definitions                                    |
++--------------------------------------------------------------+

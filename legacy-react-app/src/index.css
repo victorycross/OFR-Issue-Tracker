@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-navy-950: #0a1628;
+  --color-navy-900: #0f1f3d;
+  --color-navy-800: #162a4a;
+  --color-navy-700: #1e3a5f;
+  --color-navy-600: #2a4a73;
+  --color-navy-500: #3d6191;
+  --color-navy-400: #5a7faa;
+  --color-navy-300: #8aa3c4;
+  --color-navy-200: #b8cce0;
+  --color-navy-100: #dce6f0;
+  --color-navy-50: #eef2f7;
+  --color-slate-25: #f8f9fb;
+  --color-risk-red: #c41e3a;
+  --color-risk-red-light: #fef2f4;
+  --color-risk-amber: #c47a1e;
+  --color-risk-amber-light: #fef8f0;
+  --color-risk-green: #1e7a3a;
+  --color-risk-green-light: #f0fef4;
+  --color-escalated-purple: #6b21a8;
+  --color-escalated-purple-light: #faf5ff;
+  --color-brand-blue: #2563eb;
+  --color-brand-blue-light: #eff6ff;
+  --font-display: 'DM Sans', system-ui, sans-serif;
+  --font-data: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-data);
+  background-color: var(--color-slate-25);
+  color: var(--color-navy-950);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-navy-50);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-navy-300);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-navy-400);
+}
+
+/* ── Animations ── */
+@keyframes slideDown {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 500px; }
+}
+
+.row-expand {
+  animation: slideDown 0.25s ease-out forwards;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-backdrop {
+  animation: fadeIn 0.15s ease-out forwards;
+}
+
+.modal-content {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-enter {
+  animation: cardIn 0.25s ease-out forwards;
+}
+
+@keyframes stalePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.stale-pulse {
+  animation: stalePulse 2s ease-in-out infinite;
+}
+
+/* ── Login page animated gradient background ── */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.login-bg {
+  background: linear-gradient(135deg, #0a1628 0%, #162a4a 25%, #1e3a5f 50%, #0f1f3d 75%, #0a1628 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* ── Stat card accent borders ── */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(10, 22, 40, 0.1), 0 4px 10px -5px rgba(10, 22, 40, 0.06);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 4px 4px 0 0;
+}
+
+.stat-card-default::before { background: linear-gradient(90deg, var(--color-navy-400), var(--color-navy-300)); }
+.stat-card-red::before { background: linear-gradient(90deg, var(--color-risk-red), #e8435a); }
+.stat-card-amber::before { background: linear-gradient(90deg, var(--color-risk-amber), #e09830); }
+.stat-card-green::before { background: linear-gradient(90deg, var(--color-risk-green), #2a9e4e); }
+.stat-card-blue::before { background: linear-gradient(90deg, var(--color-brand-blue), #4f8ef7); }
+
+/* ── Status bar chart ── */
+.status-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--color-navy-100);
+}
+
+.status-bar-segment {
+  transition: width 0.4s ease;
+  min-width: 4px;
+}
+
+/* ── Intake card priority stripe ── */
+.intake-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.intake-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(10, 22, 40, 0.08), 0 4px 10px -5px rgba(10, 22, 40, 0.04);
+}
+
+.intake-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.intake-card-high::before { background: var(--color-risk-red); }
+.intake-card-medium::before { background: var(--color-risk-amber); }
+.intake-card-low::before { background: var(--color-risk-green); }
+
+/* ── Table styling ── */
+.tracker-table tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.tracker-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* ── Filter chip transitions ── */
+.filter-chip {
+  transition: all 0.15s ease;
+}
+
+.filter-chip:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Header gradient ── */
+.header-gradient {
+  background: linear-gradient(135deg, #0a1628 0%, #162a4a 50%, #1e3a5f 100%);
+  position: relative;
+}
+
+.header-gradient::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-brand-blue), #4f8ef7, var(--color-brand-blue));
+}
+
+/* ── Section transitions ── */
+section {
+  animation: cardIn 0.3s ease-out forwards;
+}
+
+/* ── Geometric pattern for login ── */
+.login-pattern {
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(30, 58, 95, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(90, 127, 170, 0.05) 0%, transparent 60%);
+}
