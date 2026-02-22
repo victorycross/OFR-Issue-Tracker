@@ -1,0 +1,387 @@
+SubmitScreen As screen:
+    Fill: =RGBA(245, 247, 250, 1)
+    LoadingSpinnerColor: =RGBA(202, 80, 16, 1)
+
+    Rectangle1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(255, 191, 0, 1)
+        Fill: =RGBA(255, 191, 0, 1)
+        FocusedBorderThickness: =4
+        Height: =55
+        HoverFill: =RGBA(255, 191, 0, 1)
+        PressedFill: =RGBA(255, 191, 0, 1)
+        Width: =1366
+        ZIndex: =1
+
+    Btn_Submit_Dashboard As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.Arial
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |
+            =RGBA(240,240,240,1)
+        OnSelect: =Navigate(DashboardScreen, ScreenTransition.Fade)
+        PressedBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |
+            =RGBA(210,215,226,1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =14
+        Text: ="< Dashboard"
+        Width: =130
+        X: =10
+        Y: =8
+        ZIndex: =2
+
+    Lbl_Submit_HeaderTitle As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =1
+        Color: =RGBA(55, 71, 79, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.Arial
+        FontWeight: =FontWeight.Semibold
+        Height: =41
+        Size: =16
+        Text: ="Submit New Discussion Topic | Issue | Problem"
+        Width: =557
+        X: =795
+        Y: =8
+        ZIndex: =3
+
+    Rect_Submit_FormCard As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Height: =560
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        Width: =600
+        X: =40
+        Y: =75
+        ZIndex: =4
+
+    Lbl_Submit_TopicLabel As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.Arial
+        FontWeight: =FontWeight.Bold
+        Height: =30
+        Text: ="Topic | Issue | Problem"
+        Width: =250
+        X: =60
+        Y: =90
+        ZIndex: =5
+
+    Txt_Submit_Title As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =""
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HintText: ="Enter issue title..."
+        HoverBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(202, 80, 16, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =560
+        X: =60
+        Y: =120
+        ZIndex: =6
+
+    Lbl_Submit_Description As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.Arial
+        FontWeight: =FontWeight.Bold
+        Size: =13
+        Text: ="Description"
+        X: =60
+        Y: =170
+        ZIndex: =7
+
+    Txt_Submit_Description As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =""
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =100
+        HintText: ="Describe the issue..."
+        HoverBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        Mode: =TextMode.MultiLine
+        PressedBorderColor: =RGBA(202, 80, 16, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =560
+        X: =60
+        Y: =200
+        ZIndex: =8
+
+    Lbl_Submit_Priority As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.Arial
+        FontWeight: =FontWeight.Bold
+        Text: ="Priority"
+        X: =60
+        Y: =310
+        ZIndex: =9
+
+    Dd_Submit_Priority As dropdown:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: =["High", "Medium", "Low"]
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(202, 80, 16, 1)
+        SelectionFill: =RGBA(202, 80, 16, 1)
+        Size: =13
+        Width: =560
+        X: =60
+        Y: =340
+        ZIndex: =10
+
+    Lbl_Submit_IssuedByValue As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Text: ="Submitted By"
+        X: =60
+        Y: =460
+        ZIndex: =11
+
+    Lbl_Submit_IssuedBy As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Text: =User().FullName
+        X: =60
+        Y: =490
+        ZIndex: =12
+
+    Btn_Submit_Issue As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(255, 191, 0, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.Arial
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |
+            =RGBA(195,76,47,1)
+        OnSelect: |-
+            =If(IsBlank(Txt_Submit_Title.Text), Notify("Title is required", NotificationType.Error), Patch(OFR_IntakeQueue, Defaults(OFR_IntakeQueue), {Title: Txt_Submit_Title.Text, Description: Txt_Submit_Description.Text, Priority: {Value: Dd_Submit_Priority.Selected.Value}, FunctionalGroup: {Value: Dd_Submit_FuncGroup.Selected.Value}, TriageStatus: {Value: "Pending"}, DateSubmitted: Now()}); Reset(Txt_Submit_Title); Reset(Txt_Submit_Description); Reset(Dd_Submit_Priority); Reset(Dd_Submit_FuncGroup); UpdateContext({showSuccess: true}))
+        PressedBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |
+            =RGBA(167,69,44,1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="Submit Issue"
+        Width: =560
+        X: =60
+        Y: =540
+        ZIndex: =13
+
+    Rect_Submit_HeaderBar As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(230, 230, 230, 1)
+        FocusedBorderThickness: =4
+        Height: =768
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        Visible: =showSuccess
+        Width: =1366
+        ZIndex: =14
+
+    Lbl_Submit_Success As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.Arial
+        FontWeight: =FontWeight.Bold
+        Height: =90
+        Size: =24
+        Text: ="Issue Submitted Successfully!"
+        Visible: =showSuccess
+        Width: =400
+        X: =483
+        Y: =260
+        ZIndex: =15
+
+    Btn_Submit_BackToDashboard As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(202, 80, 16, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |
+            =RGBA(240,240,240,1)
+        OnSelect: |-
+            =UpdateContext({showSuccess: false}); Navigate(DashboardScreen, ScreenTransition.Fade)
+        PressedBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |
+            =RGBA(210,215,226,1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="Back to Dashboard"
+        Visible: =showSuccess
+        Width: =300
+        X: =533
+        Y: =370
+        ZIndex: =16
+
+    Lbl_Submit_FuncGroup As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Text: ="Functional Group"
+        X: =60
+        Y: =395
+        ZIndex: =17
+
+    Dd_Submit_FuncGroup As dropdown:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: =["Risk Management Office", "Engagement Risk", "Client Risk and KYC", "Technology Risk & AI Trust", "National Security", "OGC General Counsel", "OGC Privacy", "OGC Contracts", "Internal Audit", "Independence"]
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(202, 80, 16, 1)
+        SelectionFill: =RGBA(202, 80, 16, 1)
+        Size: =13
+        Width: =560
+        X: =60
+        Y: =420
+        ZIndex: =18
+

@@ -23,16 +23,25 @@ All UI controls follow the naming convention: **`{Type}_{Screen}_{Purpose}`**
 **Type prefixes:** `Btn_`, `Lbl_`, `Dd_`, `Txt_`, `Rect_`, `Gal_`
 **Screen shorthand:** `Tracker`, `Detail`, `Submit`, `Group`, `Kanban`, `Dash`
 
+### Navigation Pattern
+
+All 6 screens use a **unified hamburger navigation menu**:
+- **Header:** Orange bar (`RGBA(208,74,2,1)`, 55px) with ☰ hamburger button (left), screen title (centre-left), "+ Submit New Issue" CTA (right)
+- **Dropdown:** 5 nav items (Dashboard, Issue Tracker, Group Allocation, Kanban Board, Submit New Issue) with current-screen highlighting
+- **Back buttons:** IssueDetailScreen ("< Tracker") and SubmitScreen ("< Dashboard") have back buttons between hamburger and title
+- **Context variable:** `varShowNav` controls dropdown visibility; reset to `false` in each screen's `OnVisible`
+- **9 controls per screen, 54 total:** `Btn_{Screen}_HamburgerMenu`, `Rect_{Screen}_NavOverlay`, `Rect_{Screen}_NavDropdown`, 5 nav buttons, `Btn_{Screen}_SubmitCTA`
+
 ### Screen Summary
 
 | Screen | Shorthand | Purpose | Element Count |
 |--------|-----------|---------|---------------|
-| DashboardScreen | Dash | KPI overview, intake triage, navigation hub | ~20+ |
-| TrackerScreen | Tracker | Sortable/filterable issue table with quick-update panel | 11 renamed |
-| IssueDetailScreen | Detail | Full issue view with update history and add-update form | 12 renamed |
-| SubmitScreen | Submit | Intake submission form | 17 renamed |
-| GroupAllocationScreen | Group | Colour-coded card grid showing open issues per functional group (4-4-2 layout, 10 groups) | 36 renamed |
-| KanbanScreen | Kanban | 4-column board (New, Active, Escalated, Monitoring) | 14 renamed |
+| DashboardScreen | Dash | KPI overview, intake triage, navigation hub | ~20+ (+ 9 nav) |
+| TrackerScreen | Tracker | Sortable/filterable issue table with quick-update panel | 11 renamed (+ 9 nav) |
+| IssueDetailScreen | Detail | Full issue view with update history and add-update form | 12 renamed (+ 9 nav + back) |
+| SubmitScreen | Submit | Intake submission form | 17 renamed (+ 9 nav + back) |
+| GroupAllocationScreen | Group | Colour-coded card grid showing open issues per functional group (4-4-2 layout, 10 groups) | 36 renamed (+ 9 nav) |
+| KanbanScreen | Kanban | 4-column board (New, Active, Escalated, Monitoring) | 14 renamed (+ 9 nav) |
 
 ### Key Functional Groups (10)
 
@@ -154,10 +163,19 @@ Key columns: `Title`, `Owner`, `Priority`, `Description`, `DateSubmitted`, `Tria
 - DashboardScreen: 4 renames (TextInput6→Txt_Dash_IntakeNotes, Rectangle2→Rect_Dash_IntakePanel, HeaderBar→Rect_Dash_HeaderBar, Gallery1→Gal_Dash_IntakeQueue)
 - KanbanScreen: 14 renames (nav buttons, header, column labels, 4 galleries)
 
+### Hamburger Navigation Menu (all 6 screens — completed)
+- Replaced two header patterns (Full Navigation Bar + Incident View Header) with unified hamburger menu
+- 9 new controls per screen (54 total): hamburger button, overlay, dropdown panel, 5 nav buttons, submit CTA
+- 16 old inline nav buttons removed across all screens
+- `varShowNav` context variable added to all screens' `OnVisible`
+- Current-screen highlighting in dropdown (blue text + light fill)
+- Back buttons retained on IssueDetailScreen ("< Tracker") and SubmitScreen ("< Dashboard")
+
 ### Documentation Updates (completed)
-- OFR-SDD.md: Updated TextInput6 references to Txt_Dash_IntakeNotes
-- OFR-PowerApps-Completion-Guide.md: Updated all old control names; added GroupAllocationScreen rewrite, header nav patterns, SubmitScreen section, Closed Items KPI, colour references
-- OFR-User-Guide.md: Version bump to 1.3, added Closed Items KPI, updated field labels, navigation sections, Submit screen updates
+- OFR-SDD.md: Updated TextInput6 references to Txt_Dash_IntakeNotes; replaced two header patterns with unified hamburger navigation; updated all 6 screen specs + navigation map; added `varShowNav` context variable
+- OFR-PowerApps-Completion-Guide.md: Updated all old control names; added GroupAllocationScreen rewrite, header nav patterns, SubmitScreen section, Closed Items KPI, colour references; replaced all header/nav sections with hamburger menu pattern + full property reference
+- OFR-User-Guide.md: Version bump to 1.4, added Closed Items KPI, updated field labels, added "Navigating the App" section, updated all screen navigation sections to reference hamburger menu, Submit screen updates
+- OFR-Test-Plan.md: Version bump to 1.2, updated 8 existing navigation test cases, added 6 new NAV test cases (NAV01-NAV06), total now 82 cases
 
 ## How to Start a New Session
 

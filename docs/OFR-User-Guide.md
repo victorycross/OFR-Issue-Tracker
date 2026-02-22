@@ -1,7 +1,7 @@
 # OFR Issue Tracker — User Guide
 
-**Version:** 1.3
-**Last Updated:** February 20, 2026
+**Version:** 1.4
+**Last Updated:** February 21, 2026
 
 ---
 
@@ -28,6 +28,36 @@ This guide walks you through everything you need to do in the app, screen by scr
 3. Click the **OFR Issue Tracker** tab
 
 You will be signed in automatically using your Microsoft 365 account. No separate username or password is needed.
+
+---
+
+## Navigating the App
+
+Every screen in the app has the same navigation menu in the top-left corner. This makes it easy to move between screens from anywhere in the app.
+
+### Hamburger Menu
+
+Tap the **☰** (three horizontal lines) button in the top-left corner of any screen to open the navigation menu. A dropdown panel appears with five options:
+
+| Menu Item | Destination |
+|-----------|-------------|
+| **Dashboard** | The home screen with KPI cards and intake queue |
+| **Issue Tracker** | The sortable/filterable issue table |
+| **Group Allocation** | Colour-coded cards showing open issues per functional group |
+| **Kanban Board** | Visual board with issues organised by status columns |
+| **Submit New Issue** | The form to submit a new issue into the intake queue |
+
+The screen you are currently on is highlighted in the menu so you always know where you are.
+
+To close the menu without navigating, tap anywhere outside the dropdown panel.
+
+### Submit New Issue Button
+
+In addition to the menu, every screen has a **+ Submit New Issue** button on the right side of the header bar. This provides quick access to the submission form without opening the menu.
+
+### Back Buttons
+
+The **Issue Detail** and **Submit** screens also have a **< Back** button in the header for quick return to the parent screen (Tracker or Dashboard, respectively).
 
 ---
 
@@ -91,14 +121,7 @@ The issue will appear in the Intake Queue as "Pending" and wait for someone to r
 
 ### Navigation
 
-The Dashboard has a consistent navigation bar at the top of the screen with buttons to reach the other main views, plus a **+ Submit New Issue** button:
-
-| Button | Destination |
-|--------|-------------|
-| **Group Allocation** | Opens the Group Allocation screen (Screen 5), which displays active issue counts per functional group |
-| **Kanban Board** | Opens the Kanban Board (Screen 6), which shows all active issues organized by status in visual swim-lanes |
-| **View Tracker >** | Opens the full issue tracking table (Screen 2) |
-| **+ Submit New Issue** | Opens the Submit screen (Screen 4) to create a new intake item |
+Use the **☰ hamburger menu** in the top-left corner to navigate to any other screen, or tap **+ Submit New Issue** on the right side of the header bar. See the [Navigating the App](#navigating-the-app) section for details.
 
 ---
 
@@ -183,7 +206,7 @@ The Quick Update panel is useful for adding routine status notes or reassigning 
 
 ### Navigation
 
-Click **Back to Dashboard** to return to the home screen.
+Use the **☰ hamburger menu** in the top-left corner to navigate to any other screen, or tap **+ Submit New Issue** on the right side of the header bar. See the [Navigating the App](#navigating-the-app) section for details.
 
 ---
 
@@ -245,7 +268,7 @@ To close an issue, add a final update explaining the resolution and change the s
 
 ### Navigation
 
-Click **Back to Tracker** to return to the issue table.
+Click **< Tracker** in the header bar to return to the issue table, or use the **☰ hamburger menu** to navigate to any other screen. See the [Navigating the App](#navigating-the-app) section for details.
 
 ---
 
@@ -264,7 +287,7 @@ The Submit screen is a dedicated form for creating new intake items.
    - **Submitted By** — Shows the name of the person submitting the issue (auto-populated from your Microsoft 365 account)
 3. Click **Submit**
 4. A success notification confirms your submission
-5. Click **Back to Dashboard** to return
+5. Click **< Dashboard** in the header bar to return, or use the **☰ hamburger menu** to navigate to any other screen
 
 Your submitted issue will appear in the Intake Queue on the Dashboard with a status of "Pending", ready for an Issue Manager to review, accept, or reject.
 
@@ -301,14 +324,7 @@ Below the cards, a summary row shows the total active issue count and highlights
 
 ### Navigation
 
-The Group Allocation screen has a consistent navigation bar at the top of the screen with buttons to reach the other main views, plus a **+ Submit New Issue** button:
-
-| Button | Destination |
-|--------|-------------|
-| **Dashboard** | Returns to the Dashboard (Screen 1) |
-| **Kanban Board** | Opens the Kanban Board (Screen 6) |
-| **View Tracker >** | Opens the full issue tracking table (Screen 2) |
-| **+ Submit New Issue** | Opens the Submit screen (Screen 4) to create a new intake item |
+Use the **☰ hamburger menu** in the top-left corner to navigate to any other screen, or tap **+ Submit New Issue** on the right side of the header bar. See the [Navigating the App](#navigating-the-app) section for details.
 
 ---
 
@@ -340,14 +356,7 @@ Click any issue card to navigate directly to the Issue Detail screen for that is
 
 ### Navigation
 
-The Kanban Board has a consistent navigation bar at the top of the screen with buttons to reach the other main views, plus a **+ Submit New Issue** button:
-
-| Button | Destination |
-|--------|-------------|
-| **Dashboard** | Returns to the Dashboard (Screen 1) |
-| **Group Allocation** | Opens the Group Allocation screen (Screen 5) |
-| **View Tracker >** | Opens the full issue tracking table (Screen 2) |
-| **+ Submit New Issue** | Opens the Submit screen (Screen 4) to create a new intake item |
+Use the **☰ hamburger menu** in the top-left corner to navigate to any other screen, or tap **+ Submit New Issue** on the right side of the header bar. See the [Navigating the App](#navigating-the-app) section for details.
 
 ---
 

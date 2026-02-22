@@ -1,7 +1,7 @@
 # OFR Issue Tracker — Test Plan
 
-**Version:** 1.1
-**Date:** February 19, 2025
+**Version:** 1.2
+**Date:** February 21, 2026
 **Application:** OFR Issue Tracker (M365-Native)
 **Environment:** papercuts.cafe (default) — M365 Business Standard + Power Apps Developer + Power Automate Free
 
@@ -9,7 +9,7 @@
 
 ## 1. Test Objectives
 
-Validate that the M365-native OFR Issue Tracker correctly supports the full issue lifecycle: intake submission, triage, promotion to active tracking, issue updates with audit trail, staleness calculations, dashboard KPIs, and filtering/search. Confirm all three layers (SharePoint data, Power Apps UI, Power Automate automation) work together end-to-end.
+Validate that the M365-native OFR Issue Tracker correctly supports the full issue lifecycle: intake submission, triage, promotion to active tracking, issue updates with audit trail, staleness calculations, dashboard KPIs, filtering/search, and consistent hamburger navigation across all screens. Confirm all three layers (SharePoint data, Power Apps UI, Power Automate automation) work together end-to-end.
 
 ---
 
@@ -122,12 +122,12 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Expected Result** | Item's TriageStatus changes to "Dismissed" in SharePoint. Item no longer appears in the pending intake gallery. KPIs update if applicable. |
 | **Priority** | Medium |
 
-#### TC-PA-D05: Navigate to Tracker Screen
+#### TC-PA-D05: Navigate to Tracker Screen via hamburger menu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Dashboard Screen loaded |
-| **Steps** | 1. Click "View Tracker" or navigation button <br> 2. Verify navigation to Tracker Screen |
-| **Expected Result** | Tracker Screen loads showing the issue table with all open items. |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Issue Tracker" in the dropdown <br> 3. Verify navigation to Tracker Screen |
+| **Expected Result** | Dropdown closes. Tracker Screen loads showing the issue table with all open items. |
 | **Priority** | High |
 
 #### TC-PA-D06: Intake Review panel opens on item click
@@ -178,31 +178,31 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Expected Result** | FunctionalGroup value flows from OFR_IntakeQueue to OFR_Issues during acceptance. |
 | **Priority** | High |
 
-#### TC-PA-D12: Navigate to Group Allocation Screen
+#### TC-PA-D12: Navigate to Group Allocation Screen via hamburger menu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Dashboard Screen loaded |
-| **Steps** | 1. Click "Group Allocation" button <br> 2. Verify navigation to GroupAllocationScreen |
-| **Expected Result** | GroupAllocationScreen loads showing 10 group cards with active issue counts. |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Group Allocation" in the dropdown <br> 3. Verify navigation to GroupAllocationScreen |
+| **Expected Result** | Dropdown closes. GroupAllocationScreen loads showing 10 group cards with active issue counts. |
 | **Priority** | High |
 
-#### TC-PA-D13: Navigate to Kanban Board Screen
+#### TC-PA-D13: Navigate to Kanban Board Screen via hamburger menu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Dashboard Screen loaded |
-| **Steps** | 1. Click "Kanban Board" button <br> 2. Verify navigation to KanbanScreen |
-| **Expected Result** | KanbanScreen loads showing 4 status columns with issue cards. |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Kanban Board" in the dropdown <br> 3. Verify navigation to KanbanScreen |
+| **Expected Result** | Dropdown closes. KanbanScreen loads showing 4 status columns with issue cards. |
 | **Priority** | High |
 
 ---
 
 ### 3.2b — Power Apps: Submit Screen
 
-#### TC-PA-S01: Navigate to Submit Screen
+#### TC-PA-S01: Navigate to Submit Screen via header CTA
 | Field | Value |
 |-------|-------|
 | **Precondition** | Dashboard Screen loaded |
-| **Steps** | 1. Click "+ Submit New Issue" button <br> 2. Verify navigation to SubmitScreen |
+| **Steps** | 1. Click the "+ Submit New Issue" button in the header bar (right side) <br> 2. Verify navigation to SubmitScreen |
 | **Expected Result** | Submit Screen loads showing the issue submission form with Title, Priority, Description fields. |
 | **Priority** | High |
 
@@ -218,7 +218,7 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Submit Screen loaded |
-| **Steps** | 1. Click "Back to Dashboard" button |
+| **Steps** | 1. Click the "< Dashboard" back button in the header bar (between hamburger and title) |
 | **Expected Result** | Returns to Dashboard Screen. |
 | **Priority** | Low |
 
@@ -346,12 +346,12 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Expected Result** | Issue Detail Screen loads showing OFR-2 header info and update history. |
 | **Priority** | High |
 
-#### TC-PA-T14: Back to Dashboard navigation
+#### TC-PA-T14: Navigate to Dashboard from Tracker via hamburger menu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Tracker Screen loaded |
-| **Steps** | 1. Click "Back to Dashboard" button |
-| **Expected Result** | Returns to Dashboard Screen with KPIs and intake gallery. |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Dashboard" in the dropdown |
+| **Expected Result** | Dropdown closes. Returns to Dashboard Screen with KPIs and intake gallery. |
 | **Priority** | Low |
 
 #### TC-PA-T15: FunctionalGroup column visible on Tracker
@@ -434,7 +434,7 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Issue Detail Screen loaded |
-| **Steps** | 1. Click "Back to Tracker" button |
+| **Steps** | 1. Click the "< Tracker" back button in the header bar (between hamburger and title) |
 | **Expected Result** | Returns to Tracker Screen with filters preserved. |
 | **Priority** | Low |
 
@@ -586,12 +586,12 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Expected Result** | Total active count = sum of all group counts + unassigned count. |
 | **Priority** | Medium |
 
-#### TC-PA-G06: Back to Dashboard navigation
+#### TC-PA-G06: Navigate to Dashboard from Group Allocation via hamburger menu
 | Field | Value |
 |-------|-------|
 | **Precondition** | GroupAllocationScreen loaded |
-| **Steps** | 1. Click "Back to Dashboard" button |
-| **Expected Result** | Returns to Dashboard Screen. |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Dashboard" in the dropdown |
+| **Expected Result** | Dropdown closes. Returns to Dashboard Screen. |
 | **Priority** | Low |
 
 ---
@@ -654,13 +654,65 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Expected Result** | Closed issues do not appear on the Kanban board. Total card count decreases. |
 | **Priority** | High |
 
-#### TC-PA-K08: Back to Dashboard navigation
+#### TC-PA-K08: Navigate to Dashboard from Kanban via hamburger menu
 | Field | Value |
 |-------|-------|
 | **Precondition** | KanbanScreen loaded |
-| **Steps** | 1. Click "Back to Dashboard" button |
-| **Expected Result** | Returns to Dashboard Screen. |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Dashboard" in the dropdown |
+| **Expected Result** | Dropdown closes. Returns to Dashboard Screen. |
 | **Priority** | Low |
+
+---
+
+### 3.8b — Power Apps: Hamburger Navigation Menu (Cross-Screen)
+
+#### TC-PA-NAV01: Hamburger menu opens on tap
+| Field | Value |
+|-------|-------|
+| **Precondition** | Any screen loaded (e.g., DashboardScreen) |
+| **Steps** | 1. Verify the ☰ hamburger button is visible in the top-left of the header bar <br> 2. Click the ☰ button <br> 3. Verify a dropdown panel appears below the header with 5 navigation items |
+| **Expected Result** | Dropdown panel appears (X=10, Y=55, W=250, H=220) with white background and 5 items: Dashboard, Issue Tracker, Group Allocation, Kanban Board, Submit New Issue. A transparent overlay covers the rest of the screen behind the panel. |
+| **Priority** | High |
+
+#### TC-PA-NAV02: Current screen highlighted in dropdown
+| Field | Value |
+|-------|-------|
+| **Precondition** | DashboardScreen loaded, hamburger menu open |
+| **Steps** | 1. Open the ☰ menu on DashboardScreen <br> 2. Verify "Dashboard" item is highlighted (blue text, light blue-grey fill) <br> 3. Navigate to TrackerScreen <br> 4. Open the ☰ menu <br> 5. Verify "Issue Tracker" item is now highlighted |
+| **Expected Result** | The current screen's entry in the dropdown is visually distinct (blue text with `RGBA(65,83,133,1)`, light fill with `RGBA(210,215,226,1)`). Other items use default styling. |
+| **Priority** | High |
+
+#### TC-PA-NAV03: Navigate to each screen from dropdown
+| Field | Value |
+|-------|-------|
+| **Precondition** | DashboardScreen loaded |
+| **Steps** | 1. Open ☰ menu, click "Issue Tracker" — verify TrackerScreen loads <br> 2. Open ☰ menu, click "Group Allocation" — verify GroupAllocationScreen loads <br> 3. Open ☰ menu, click "Kanban Board" — verify KanbanScreen loads <br> 4. Open ☰ menu, click "Submit New Issue" — verify SubmitScreen loads <br> 5. Open ☰ menu, click "Dashboard" — verify DashboardScreen loads |
+| **Expected Result** | Each menu item navigates to the correct screen. Dropdown closes after each selection. |
+| **Priority** | High |
+
+#### TC-PA-NAV04: Outside tap closes dropdown
+| Field | Value |
+|-------|-------|
+| **Precondition** | Any screen loaded, hamburger menu open |
+| **Steps** | 1. Open the ☰ menu <br> 2. Click anywhere outside the dropdown panel (on the transparent overlay) <br> 3. Verify the dropdown closes |
+| **Expected Result** | Dropdown panel and overlay disappear. No navigation occurs. Screen remains unchanged. |
+| **Priority** | Medium |
+
+#### TC-PA-NAV05: Dropdown closes after navigation
+| Field | Value |
+|-------|-------|
+| **Precondition** | Any screen loaded |
+| **Steps** | 1. Open the ☰ menu <br> 2. Click a navigation item (e.g., "Kanban Board") <br> 3. Verify the dropdown is closed on the destination screen <br> 4. Open the ☰ menu on the destination screen to confirm it starts closed |
+| **Expected Result** | Dropdown is not visible when a screen loads. `varShowNav` is reset to `false` in each screen's `OnVisible`. |
+| **Priority** | Medium |
+
+#### TC-PA-NAV06: Consistent hamburger menu across all 6 screens
+| Field | Value |
+|-------|-------|
+| **Precondition** | App is running |
+| **Steps** | 1. Visit each of the 6 screens: Dashboard, Tracker, Issue Detail, Submit, Group Allocation, Kanban <br> 2. On each screen, verify: ☰ hamburger button in top-left, "+ Submit New Issue" CTA in top-right, dropdown opens with 5 items, header bar is orange <br> 3. On IssueDetailScreen, verify "< Tracker" back button between hamburger and title <br> 4. On SubmitScreen, verify "< Dashboard" back button between hamburger and title |
+| **Expected Result** | All 6 screens have identical hamburger menu layout, styling, and behaviour. IssueDetailScreen and SubmitScreen additionally have back buttons. Header bar is consistently `RGBA(208,74,2,1)` orange, 55px height. |
+| **Priority** | High |
 
 ---
 
@@ -768,15 +820,15 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-PA-D02 | Intake queue display | | | | |
 | TC-PA-D03 | New Issue form | | | | |
 | TC-PA-D04 | Dismiss intake | | | | |
-| TC-PA-D05 | Navigate to Tracker | | | | |
+| TC-PA-D05 | Nav to Tracker (hamburger) | | | | |
 | TC-PA-D06 | Intake panel opens on click | | | | |
 | TC-PA-D07 | Accept intake via panel | | | | |
 | TC-PA-D08 | Reject intake via panel | | | | |
 | TC-PA-D09 | Close panel without action | | | | |
 | TC-PA-D10 | Panel hidden on load | | | | |
-| TC-PA-S01 | Navigate to Submit Screen | | | | |
+| TC-PA-S01 | Nav to Submit (header CTA) | | | | |
 | TC-PA-S02 | Submit a new issue | | | | |
-| TC-PA-S03 | Back from Submit Screen | | | | |
+| TC-PA-S03 | Back from Submit (header) | | | | |
 | TC-PA-T01 | Issue table display | | | | |
 | TC-PA-T02 | Staleness colors | | | | |
 | TC-PA-T03 | Filter — All Open | | | | |
@@ -790,7 +842,7 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-PA-T11 | Combined filter + search | | | | |
 | TC-PA-T12 | Column sort | | | | |
 | TC-PA-T13 | Navigate to Detail | | | | |
-| TC-PA-T14 | Back to Dashboard | | | | |
+| TC-PA-T14 | Nav to Dashboard from Tracker | | | | |
 | TC-PA-I01 | Issue header display | | | | |
 | TC-PA-I02 | Update history timeline | | | | |
 | TC-PA-I03 | Multiple update entries | | | | |
@@ -798,7 +850,7 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-PA-I05 | Add update — status change | | | | |
 | TC-PA-I06 | Validation — empty notes | | | | |
 | TC-PA-I07 | Update reflects in SP | | | | |
-| TC-PA-I08 | Back to Tracker | | | | |
+| TC-PA-I08 | Back to Tracker (header) | | | | |
 | TC-FL-S01 | Staleness — manual run | | | | |
 | TC-FL-S02 | DaysSinceUpdate calc | | | | |
 | TC-FL-S03 | StalenessFlag accuracy | | | | |
@@ -818,7 +870,7 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-PA-G03 | Closed excluded from groups | | | | |
 | TC-PA-G04 | Unassigned count | | | | |
 | TC-PA-G05 | Total active count | | | | |
-| TC-PA-G06 | Back from Group Allocation | | | | |
+| TC-PA-G06 | Nav to Dashboard from Group | | | | |
 | TC-PA-K01 | Kanban Board loads | | | | |
 | TC-PA-K02 | Issues in correct columns | | | | |
 | TC-PA-K03 | Card content display | | | | |
@@ -826,15 +878,21 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-PA-K05 | Column counts match | | | | |
 | TC-PA-K06 | Staleness colours on cards | | | | |
 | TC-PA-K07 | Closed excluded from Kanban | | | | |
-| TC-PA-K08 | Back from Kanban | | | | |
+| TC-PA-K08 | Nav to Dashboard from Kanban | | | | |
+| TC-PA-NAV01 | Hamburger menu opens | | | | |
+| TC-PA-NAV02 | Current screen highlighted | | | | |
+| TC-PA-NAV03 | Navigate to each screen | | | | |
+| TC-PA-NAV04 | Outside tap closes dropdown | | | | |
+| TC-PA-NAV05 | Dropdown closes after nav | | | | |
+| TC-PA-NAV06 | Consistent across 6 screens | | | | |
 | TC-PA-T15 | FunctionalGroup column | | | | |
 | TC-PA-T16 | Search by group | | | | |
 | TC-PA-I09 | FunctionalGroup on detail | | | | |
 | TC-PA-S04 | FunctionalGroup dropdown | | | | |
 | TC-PA-S05 | FunctionalGroup saved | | | | |
 | TC-PA-D11 | FunctionalGroup acceptance | | | | |
-| TC-PA-D12 | Nav to Group Allocation | | | | |
-| TC-PA-D13 | Nav to Kanban Board | | | | |
+| TC-PA-D12 | Nav to Group Alloc (hamburger) | | | | |
+| TC-PA-D13 | Nav to Kanban (hamburger) | | | | |
 | TC-SP-05 | FunctionalGroup on Issues | | | | |
 | TC-SP-06 | FunctionalGroup on Intake | | | | |
 | TC-NEG-01 | Search no results | | | | |
@@ -852,15 +910,16 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | Priority | Count | Description |
 |----------|-------|-------------|
 | Critical | 2 | Full end-to-end lifecycle (TC-E2E-01, TC-E2E-03) |
-| High | 44 | Core functionality — KPIs, filters, updates, flows, data integrity, intake panel, submit screen, group allocation, kanban board, FunctionalGroup pipeline |
-| Medium | 19 | Secondary features — sorting, combined filters, concurrent access, panel states, card counts, staleness colours |
+| High | 48 | Core functionality — KPIs, filters, updates, flows, data integrity, intake panel, submit screen, group allocation, kanban board, FunctionalGroup pipeline, hamburger navigation |
+| Medium | 21 | Secondary features — sorting, combined filters, concurrent access, panel states, card counts, staleness colours, nav dropdown close behaviour |
 | Low | 11 | Edge cases — empty search, long text, special chars, navigation, back buttons |
-| **Total** | **76** | |
+| **Total** | **82** | |
 
 ### Recommended Test Order
 1. **SharePoint data layer** (TC-SP-01 to TC-SP-06) — confirm foundation including FunctionalGroup
 2. **Power Automate flows** (TC-FL-S01 to TC-FL-S05, TC-FL-P01 to TC-FL-P06) — confirm automation
 3. **Power Apps core screens** (TC-PA-D01 to TC-PA-I09, TC-PA-S01 to TC-PA-S05) — confirm UI including FunctionalGroup
 4. **Power Apps new screens** (TC-PA-G01 to TC-PA-G06, TC-PA-K01 to TC-PA-K08) — confirm Group Allocation and Kanban
-5. **End-to-end** (TC-E2E-01, TC-E2E-02, TC-E2E-03) — confirm full lifecycle including FunctionalGroup flow
-6. **Edge cases & auth** (TC-NEG-01 to TC-AUTH-02) — confirm robustness
+5. **Hamburger navigation** (TC-PA-NAV01 to TC-PA-NAV06) — confirm unified navigation menu across all screens
+6. **End-to-end** (TC-E2E-01, TC-E2E-02, TC-E2E-03) — confirm full lifecycle including FunctionalGroup flow
+7. **Edge cases & auth** (TC-NEG-01 to TC-AUTH-02) — confirm robustness

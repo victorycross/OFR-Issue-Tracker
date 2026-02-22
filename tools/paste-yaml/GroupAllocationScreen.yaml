@@ -1,0 +1,228 @@
+- Btn_Group_HamburgerMenu:
+    Control: Classic/Button@2.2.0
+    Properties:
+      Text: ="☰"
+      X: =10
+      Y: =8
+      Width: =45
+      Height: =40
+      Fill: =RGBA(0,0,0,0)
+      Color: =RGBA(255,255,255,1)
+      HoverFill: =RGBA(180,60,0,1)
+      PressedFill: =RGBA(150,50,0,1)
+      HoverColor: =RGBA(255,255,255,1)
+      PressedColor: =RGBA(255,255,255,1)
+      BorderColor: =RGBA(0,0,0,0)
+      HoverBorderColor: =RGBA(0,0,0,0)
+      PressedBorderColor: =RGBA(0,0,0,0)
+      DisabledBorderColor: =RGBA(0,0,0,0)
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Bold
+      Size: =20
+      OnSelect: |
+        =UpdateContext({varShowNav: !varShowNav})
+      RadiusTopLeft: =4
+      RadiusTopRight: =4
+      RadiusBottomLeft: =4
+      RadiusBottomRight: =4
+
+- Btn_Group_SubmitCTA:
+    Control: Classic/Button@2.2.0
+    Properties:
+      Text: ="+ Submit New Issue"
+      X: =1150
+      Y: =8
+      Width: =200
+      Height: =40
+      Fill: =RGBA(208,74,2,1)
+      Color: =RGBA(255,255,255,1)
+      HoverFill: =RGBA(195,76,47,1)
+      PressedFill: =RGBA(167,69,44,1)
+      HoverColor: =RGBA(255,255,255,1)
+      PressedColor: =RGBA(255,255,255,1)
+      BorderColor: =RGBA(0,0,0,0)
+      HoverBorderColor: =RGBA(0,0,0,0)
+      PressedBorderColor: =RGBA(0,0,0,0)
+      DisabledBorderColor: =RGBA(0,0,0,0)
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Semibold
+      Size: =13
+      OnSelect: =Navigate(SubmitScreen, ScreenTransition.Fade)
+      RadiusTopLeft: =4
+      RadiusTopRight: =4
+      RadiusBottomLeft: =4
+      RadiusBottomRight: =4
+
+- Rect_Group_NavOverlay:
+    Control: Rectangle
+    Properties:
+      X: =0
+      Y: =0
+      Width: =1366
+      Height: =768
+      Fill: =RGBA(0,0,0,0.4)
+      Visible: =varShowNav
+      OnSelect: |
+        =UpdateContext({varShowNav: false})
+
+- Rect_Group_NavDropdown:
+    Control: Rectangle
+    Properties:
+      X: =0
+      Y: =55
+      Width: =260
+      Height: =225
+      Fill: =RGBA(255,255,255,1)
+      Visible: =varShowNav
+      BorderColor: =RGBA(200,200,200,1)
+      BorderThickness: =1
+
+- Btn_Group_NavDashboard:
+    Control: Classic/Button@2.2.0
+    Properties:
+      Text: ="  Dashboard"
+      X: =0
+      Y: =55
+      Width: =260
+      Height: =45
+      Fill: =RGBA(255,255,255,1)
+      Color: =RGBA(45,45,45,1)
+      HoverFill: =RGBA(240,240,240,1)
+      PressedFill: =RGBA(210,215,226,1)
+      HoverColor: =RGBA(45,45,45,1)
+      PressedColor: =RGBA(45,45,45,1)
+      BorderColor: =RGBA(0,0,0,0)
+      HoverBorderColor: =RGBA(0,0,0,0)
+      PressedBorderColor: =RGBA(0,0,0,0)
+      DisabledBorderColor: =RGBA(0,0,0,0)
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Normal
+      Size: =14
+      Visible: =varShowNav
+      Align: =Align.Left
+      PaddingLeft: =20
+      OnSelect: =Navigate(DashboardScreen, ScreenTransition.Fade)
+      RadiusTopLeft: =0
+      RadiusTopRight: =0
+      RadiusBottomLeft: =0
+      RadiusBottomRight: =0
+
+- Btn_Group_NavTracker:
+    Control: Classic/Button@2.2.0
+    Properties:
+      Text: ="  Issue Tracker"
+      X: =0
+      Y: =100
+      Width: =260
+      Height: =45
+      Fill: =RGBA(255,255,255,1)
+      Color: =RGBA(45,45,45,1)
+      HoverFill: =RGBA(240,240,240,1)
+      PressedFill: =RGBA(210,215,226,1)
+      HoverColor: =RGBA(45,45,45,1)
+      PressedColor: =RGBA(45,45,45,1)
+      BorderColor: =RGBA(0,0,0,0)
+      HoverBorderColor: =RGBA(0,0,0,0)
+      PressedBorderColor: =RGBA(0,0,0,0)
+      DisabledBorderColor: =RGBA(0,0,0,0)
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Normal
+      Size: =14
+      Visible: =varShowNav
+      Align: =Align.Left
+      PaddingLeft: =20
+      OnSelect: =Navigate(TrackerScreen, ScreenTransition.Fade)
+      RadiusTopLeft: =0
+      RadiusTopRight: =0
+      RadiusBottomLeft: =0
+      RadiusBottomRight: =0
+
+- Btn_Group_NavGroupAlloc:
+    Control: Classic/Button@2.2.0
+    Properties:
+      Text: ="  Group Allocation"
+      X: =0
+      Y: =145
+      Width: =260
+      Height: =45
+      Fill: =RGBA(210,215,226,1)
+      Color: =RGBA(65,83,133,1)
+      HoverFill: =RGBA(240,240,240,1)
+      PressedFill: =RGBA(210,215,226,1)
+      HoverColor: =RGBA(45,45,45,1)
+      PressedColor: =RGBA(45,45,45,1)
+      BorderColor: =RGBA(0,0,0,0)
+      HoverBorderColor: =RGBA(0,0,0,0)
+      PressedBorderColor: =RGBA(0,0,0,0)
+      DisabledBorderColor: =RGBA(0,0,0,0)
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Bold
+      Size: =14
+      Visible: =varShowNav
+      Align: =Align.Left
+      PaddingLeft: =20
+      OnSelect: =Navigate(GroupAllocationScreen, ScreenTransition.Fade)
+      RadiusTopLeft: =0
+      RadiusTopRight: =0
+      RadiusBottomLeft: =0
+      RadiusBottomRight: =0
+
+- Btn_Group_NavKanban:
+    Control: Classic/Button@2.2.0
+    Properties:
+      Text: ="  Kanban Board"
+      X: =0
+      Y: =190
+      Width: =260
+      Height: =45
+      Fill: =RGBA(255,255,255,1)
+      Color: =RGBA(45,45,45,1)
+      HoverFill: =RGBA(240,240,240,1)
+      PressedFill: =RGBA(210,215,226,1)
+      HoverColor: =RGBA(45,45,45,1)
+      PressedColor: =RGBA(45,45,45,1)
+      BorderColor: =RGBA(0,0,0,0)
+      HoverBorderColor: =RGBA(0,0,0,0)
+      PressedBorderColor: =RGBA(0,0,0,0)
+      DisabledBorderColor: =RGBA(0,0,0,0)
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Normal
+      Size: =14
+      Visible: =varShowNav
+      Align: =Align.Left
+      PaddingLeft: =20
+      OnSelect: =Navigate(KanbanScreen, ScreenTransition.Fade)
+      RadiusTopLeft: =0
+      RadiusTopRight: =0
+      RadiusBottomLeft: =0
+      RadiusBottomRight: =0
+
+- Btn_Group_NavSubmit:
+    Control: Classic/Button@2.2.0
+    Properties:
+      Text: ="  Submit New Issue"
+      X: =0
+      Y: =235
+      Width: =260
+      Height: =45
+      Fill: =RGBA(255,255,255,1)
+      Color: =RGBA(45,45,45,1)
+      HoverFill: =RGBA(240,240,240,1)
+      PressedFill: =RGBA(210,215,226,1)
+      HoverColor: =RGBA(45,45,45,1)
+      PressedColor: =RGBA(45,45,45,1)
+      BorderColor: =RGBA(0,0,0,0)
+      HoverBorderColor: =RGBA(0,0,0,0)
+      PressedBorderColor: =RGBA(0,0,0,0)
+      DisabledBorderColor: =RGBA(0,0,0,0)
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Normal
+      Size: =14
+      Visible: =varShowNav
+      Align: =Align.Left
+      PaddingLeft: =20
+      OnSelect: =Navigate(SubmitScreen, ScreenTransition.Fade)
+      RadiusTopLeft: =0
+      RadiusTopRight: =0
+      RadiusBottomLeft: =0
+      RadiusBottomRight: =0

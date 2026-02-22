@@ -1,0 +1,39 @@
+{
+  "d0afeb32-af8b-4be3-94c9-4083b0f4e6ca": {
+    "appActions": [
+      "providers/PowerPlatform.Governance/Operations/Read",
+      "providers/PowerPlatform.Governance/Operations/Write"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "SharePoint",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1779/1.0.1779.4440/sharepointonline/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_sharepointonline",
+      "parameterHints": {},
+      "parameterHintsV2": {}
+    },
+    "datasets": {
+      "https://papercutscafe.sharepoint.com/sites/OFRIssueTracker": {
+        "dataSources": {
+          "OFR_IntakeQueue": {
+            "tableName": "bf770774-f9ed-4a87-8509-0664682677bf"
+          },
+          "OFR_Issues": {
+            "tableName": "a70da6a6-1f0a-4fd3-bb4e-cf7847e18a99"
+          },
+          "OFR_UpdateHistory": {
+            "tableName": "95c18f5b-5c46-4228-bf10-07e40aed8e93"
+          }
+        }
+      }
+    },
+    "dataSources": [
+      "OFR_IntakeQueue",
+      "OFR_Issues",
+      "OFR_UpdateHistory"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "d0afeb32-af8b-4be3-94c9-4083b0f4e6ca"
+  }
+}

@@ -339,11 +339,19 @@ View kanban board ───────────▶ Filter() ×4             
 
 All buttons and navigation labels across all screens use these explicit RGBA values (not `ColorFade`).
 
+**Context Variables (Navigation):**
+
+| Variable | Type | Scope | Purpose |
+|----------|------|-------|---------|
+| `varShowNav` | Boolean | Per-screen (reset in OnVisible) | Controls visibility of the hamburger dropdown navigation panel. Toggled by the hamburger button; reset to `false` on each screen's `OnVisible` and when a navigation item is selected. |
+
 ### 5.2 Screen: DashboardScreen
 
 **Purpose:** Landing page with KPI overview, navigation hub, and intake triage.
 
-**Header Bar:** Yellow/orange bar displaying "One Firm Risk Tracker" title with inline navigation buttons: "+ Submit New Issue" → SubmitScreen, "Group Allocation" → GroupAllocationScreen, "Kanban Board" → KanbanScreen, "View Tracker>" → TrackerScreen.
+**Header Bar:** Orange bar (`RGBA(208,74,2,1)`) with hamburger menu button (☰) on the left, "One Firm Risk Tracker" title centre-left, and "+ Submit New Issue" CTA button on the right. The hamburger button toggles a dropdown navigation panel (`varShowNav`) listing all five navigation destinations (Dashboard, Issue Tracker, Group Allocation, Kanban Board, Submit New Issue). A transparent full-screen overlay behind the panel closes it on outside tap. The current screen (Dashboard) is highlighted in the dropdown.
+
+**OnVisible:** `UpdateContext({varShowNav: false})`
 
 | Component | Type | Data Source | Key Logic |
 |-----------|------|-------------|-----------|
@@ -367,11 +375,16 @@ All buttons and navigation labels across all screens use these explicit RGBA val
 | Assign Owner Input | TextInput | — | Free text input for assigning an owner to the issue |
 | Accept Button | Button | OFR_Issues, OFR_IntakeQueue | Creates new issue in OFR_Issues via Patch(), marks intake as "Accepted" (see formula below) |
 | Reject Button | Button | OFR_IntakeQueue | `Patch(OFR_IntakeQueue, selectedIntake, {TriageStatus: {Value: "Rejected"}})` |
-| **Other Controls** | | | |
-| + Submit New Issue Button | Button | — | `Navigate(SubmitScreen)` |
-| View Tracker Button | Button | — | `Navigate(TrackerScreen)` |
-| Group Allocation Button | Button | — | `Navigate(GroupAllocationScreen)` |
-| Kanban Board Button | Button | — | `Navigate(KanbanScreen)` |
+| **Hamburger Navigation** | | | |
+| Hamburger Button | Button | — | Text: `Char(9776)`. OnSelect: `UpdateContext({varShowNav: !varShowNav})` |
+| + Submit New Issue CTA | Button | — | `Navigate(SubmitScreen)` — always visible in header |
+| Nav Overlay | Rectangle | — | Transparent full-screen rectangle. Visible: `varShowNav`. OnSelect: `UpdateContext({varShowNav: false})` |
+| Nav Dropdown Panel | Rectangle | — | White dropdown (X=10, Y=55, W=250, H=220). Visible: `varShowNav`. |
+| Nav — Dashboard | Button | — | Current screen — highlighted. `UpdateContext({varShowNav: false})` |
+| Nav — Issue Tracker | Button | — | `UpdateContext({varShowNav: false}); Navigate(TrackerScreen)` |
+| Nav — Group Allocation | Button | — | `UpdateContext({varShowNav: false}); Navigate(GroupAllocationScreen)` |
+| Nav — Kanban Board | Button | — | `UpdateContext({varShowNav: false}); Navigate(KanbanScreen)` |
+| Nav — Submit New Issue | Button | — | `UpdateContext({varShowNav: false}); Navigate(SubmitScreen)` |
 
 **Accept Button OnSelect:**
 ```
@@ -396,6 +409,10 @@ Notify("Issue accepted into tracker", NotificationType.Success)
 
 **Purpose:** Main working view — sortable, filterable issue table.
 
+**Header Bar:** Orange bar with hamburger menu (☰), "Issue Tracker" title, and "+ Submit New Issue" CTA. Same unified navigation pattern as all screens.
+
+**OnVisible:** `UpdateContext({varShowNav: false})`
+
 | Component | Type | Data Source | Key Logic |
 |-----------|------|-------------|-----------|
 | Filter Toggles | Button group | — | Context variables: `varFilter` (AllOpen/Stale/High/Medium/Low) |
@@ -410,7 +427,7 @@ Notify("Issue accepted into tracker", NotificationType.Success)
 | FunctionalGroup Dropdown | Dropdown | — | Items: `Choices(OFR_Issues.FunctionalGroup)`. Default: selected issue's FunctionalGroup. Allows reassignment from the quick-update panel. |
 | Save Update Button | Button | OFR_UpdateHistory, OFR_Issues | Quick-saves an update note, optional status change, and optional FunctionalGroup reassignment from the panel |
 | View Full Detail Button | Button | — | `Navigate(IssueDetailScreen, ScreenTransition.None, {varSelectedIssue: selectedIssue})` |
-| Back Button | Button | — | `Navigate(DashboardScreen)` |
+| **Hamburger Navigation** | | | Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = Issue Tracker (highlighted). |
 
 **Gallery Items Formula (conceptual):**
 ```
@@ -439,6 +456,10 @@ SortByColumns(
 
 **Purpose:** Full issue view with update history and add-update form.
 
+**Header Bar:** Orange bar with hamburger menu (☰), "< Tracker" back button, "Issue Detail" title, and "+ Submit New Issue" CTA. The back button is retained between the hamburger and title for quick return to TrackerScreen.
+
+**OnVisible:** `UpdateContext({varShowNav: false})`
+
 | Component | Type | Data Source | Key Logic |
 |-----------|------|-------------|-----------|
 | Issue Header | Labels | OFR_Issues | Bound to `varSelectedIssue` context variable. Displays ItemID, Title, Status, Priority, Owner, DateRaised, and FunctionalGroup. |
@@ -447,7 +468,8 @@ SortByColumns(
 | Status Dropdown | Dropdown | — | Items: Status choices. Default: `varSelectedIssue.Status` |
 | FunctionalGroup Dropdown | Dropdown | — | Items: `Choices(OFR_Issues.FunctionalGroup)`. Default: `varSelectedIssue.FunctionalGroup`. Allows reassignment of functional group ownership. |
 | Save Update Button | Button | OFR_UpdateHistory, OFR_Issues | See save logic below |
-| Back Button | Button | — | `Navigate(TrackerScreen)` |
+| Back Button | Button | — | `Navigate(TrackerScreen)` — positioned between hamburger and title in header |
+| **Hamburger Navigation** | | | Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = none highlighted (detail view). |
 
 **Save Update Logic (conceptual):**
 ```
@@ -480,7 +502,9 @@ Reset(ddGroup);
 
 **Purpose:** Standalone form for submitting new discussion topics, issues, or problems into the Intake Queue.
 
-**Header Bar:** Yellow/orange bar with "< Dashboard" back button (left) and "Submit New Discussion Topic | Issue | Problem" title (right). Uses incident-view header style (back button + title only, no full navigation bar).
+**Header Bar:** Orange bar with hamburger menu (☰), "< Dashboard" back button, "Submit New Discussion Topic | Issue | Problem" title, and "+ Submit New Issue" CTA (disabled/hidden on this screen since it is the submit screen). The back button is retained between the hamburger and title for quick return to DashboardScreen.
+
+**OnVisible:** `UpdateContext({varShowNav: false})`
 
 | Component | Type | Data Source | Key Logic |
 |-----------|------|-------------|-----------|
@@ -491,52 +515,66 @@ Reset(ddGroup);
 | FunctionalGroup Dropdown | Dropdown | — | Label: "Functional". Items: 10 functional groups (Risk Management Office, Engagement Risk, Client Risk and KYC, Technology Risk & AI Trust, National Security, OGC General Counsel, OGC Privacy, OGC Contracts, Internal Audit, Independence) |
 | Submitted By | Label | — | Displays `User().FullName` (read-only) |
 | Submit Button | Button | OFR_IntakeQueue | `Patch(OFR_IntakeQueue, Defaults(OFR_IntakeQueue), {Title: txtTitle.Text, Description: txtDescription.Text, Priority: ddPriority.Selected, FunctionalGroup: ddNewGroup.Selected, TriageStatus: {Value: "Pending"}, DateSubmitted: Now()})` |
-| Back Button | Button | — | `Navigate(DashboardScreen)` |
+| Back Button | Button | — | `Navigate(DashboardScreen)` — positioned between hamburger and title in header |
+| **Hamburger Navigation** | | | Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = Submit New Issue (highlighted). |
 
 ### 5.6 Navigation Map
 
-**Header Styles:**
-- **Full Navigation Bar** — Used on DashboardScreen, TrackerScreen, GroupAllocationScreen, KanbanScreen. Yellow/orange header with screen title and inline navigation buttons to all other main views plus "+ Submit New Issue".
-- **Incident View Header** — Used on IssueDetailScreen and SubmitScreen. Yellow/orange header with "< Back" button and screen title only. These are detail/form screens that return to their parent view.
+**Unified Header Pattern (all 6 screens):**
+
+All screens share an identical hamburger navigation menu. The header bar is orange (`RGBA(208,74,2,1)`, 55px height, full width) with:
+- **Left:** Hamburger button (☰) that toggles a dropdown navigation panel
+- **Centre-left:** Screen title in white bold text
+- **Right:** "+ Submit New Issue" CTA button (white text, always visible)
+- **IssueDetailScreen and SubmitScreen only:** A "< Back" button between the hamburger and title for quick return to the parent screen
+
+The dropdown panel (X=10, Y=55, W=250, H=220) lists five navigation destinations: Dashboard, Issue Tracker, Group Allocation, Kanban Board, Submit New Issue. The current screen is highlighted (blue text, light blue-grey fill). A transparent full-screen overlay behind the panel closes it on outside tap. The context variable `varShowNav` controls dropdown visibility and is reset to `false` in each screen's `OnVisible`.
 
 ```
-DashboardScreen ("One Firm Risk Tracker")
-  ├── [View Tracker>] ─────▶ TrackerScreen ("Issue Tracker")
-  │                            ├── [Row tap] ──────▶ IssueDetailScreen ("Issue Detail")
-  │                            │                       └── [< Tracker] ─▶ TrackerScreen
-  │                            ├── [+ Submit New Issue] ▶ SubmitScreen
-  │                            └── [< Dashboard] ──────▶ DashboardScreen
-  ├── [+ Submit New Issue] ─▶ SubmitScreen ("Submit New Discussion Topic | Issue | Problem")
-  │                            └── [< Dashboard] ──────▶ DashboardScreen
-  ├── [Group Allocation] ──▶ GroupAllocationScreen ("Group Allocation")
-  │                            ├── [Dashboard] ────────▶ DashboardScreen
-  │                            ├── [Kanban Board] ─────▶ KanbanScreen
-  │                            ├── [View Tracker>] ────▶ TrackerScreen
-  │                            └── [+ Submit New Issue] ▶ SubmitScreen
-  ├── [Kanban Board] ──────▶ KanbanScreen ("Kanban Board")
-  │                            ├── [Card tap] ─────────▶ IssueDetailScreen
-  │                            ├── [Dashboard] ────────▶ DashboardScreen
-  │                            ├── [Group Allocation] ─▶ GroupAllocationScreen
-  │                            ├── [View Tracker>] ────▶ TrackerScreen
-  │                            └── [+ Submit New Issue] ▶ SubmitScreen
-  ├── [Intake item tap] ───▶ Opens Intake Review panel (same screen)
-  │                            ├── [Accept] ─────────▶ Creates issue + closes panel
-  │                            ├── [Reject] ─────────▶ Marks rejected + closes panel
-  │                            └── [X Close] ────────▶ Closes panel
-  ├── [Promote] ──────────▶ Triggers Power Automate flow
-  └── [Dismiss] ──────────▶ Patches intake item
+┌──────────────────────────────────────────────────────────────────────┐
+│  [☰ Hamburger] ──▶ Dropdown Navigation Panel (varShowNav)           │
+│       │              ├── Dashboard ──────────▶ DashboardScreen       │
+│       │              ├── Issue Tracker ──────▶ TrackerScreen         │
+│       │              ├── Group Allocation ───▶ GroupAllocationScreen  │
+│       │              ├── Kanban Board ───────▶ KanbanScreen          │
+│       │              └── Submit New Issue ───▶ SubmitScreen           │
+│       │                                                              │
+│  Available on ALL 6 screens:                                         │
+│       ├── DashboardScreen ("One Firm Risk Tracker")                  │
+│       ├── TrackerScreen ("Issue Tracker")                            │
+│       ├── IssueDetailScreen ("Issue Detail") + [< Tracker] back btn  │
+│       ├── SubmitScreen ("Submit New Issue") + [< Dashboard] back btn │
+│       ├── GroupAllocationScreen ("Group Allocation")                 │
+│       └── KanbanScreen ("Kanban Board")                              │
+└──────────────────────────────────────────────────────────────────────┘
+
+Additional Navigation (non-menu):
+  TrackerScreen:
+    └── [Row tap] ──────────▶ IssueDetailScreen (varSelectedIssue)
+  KanbanScreen:
+    └── [Card tap] ─────────▶ IssueDetailScreen (varSelectedIssue)
+  DashboardScreen:
+    ├── [Intake item tap] ──▶ Opens Intake Review panel (same screen)
+    │                          ├── [Accept] ──▶ Creates issue + closes panel
+    │                          ├── [Reject] ──▶ Marks rejected + closes panel
+    │                          └── [X Close] ─▶ Closes panel
+    ├── [Promote] ─────────▶ Triggers Power Automate flow
+    └── [Dismiss] ─────────▶ Patches intake item
 ```
 
 ### 5.7 Screen: GroupAllocationScreen
 
 **Purpose:** Visual tracker showing open issue counts per functional group in a colour-coded card grid, enabling managers to see workload distribution across the ten OFR functional groups at a glance.
 
-**Header Bar:** Yellow/orange bar displaying "Group Allocation" title with inline navigation buttons: "+ Submit New Issue" → SubmitScreen, "Dashboard" → DashboardScreen, "Kanban Board" → KanbanScreen, "View Tracker>" → TrackerScreen. Uses the consistent full navigation bar pattern.
+**Header Bar:** Orange bar with hamburger menu (☰), "Group Allocation" title, and "+ Submit New Issue" CTA. Same unified navigation pattern as all screens.
+
+**OnVisible:** `UpdateContext({varShowNav: false})`
 
 | Component | Type | Data Source | Key Logic |
 |-----------|------|-------------|-----------|
 | Group Cards (×10) | Rectangle + Labels | OFR_Issues | 4-4-2 card grid. Each card displays the group name label above a colour-coded count rectangle. |
 | Card Count Formula | Label | OFR_Issues | `CountRows(Filter(OFR_Issues, FunctionalGroup.Value = "[GroupName]", Status.Value <> "Closed"))` |
+| **Hamburger Navigation** | | | Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = Group Allocation (highlighted). |
 
 **Card Grid Layout (4-4-2):**
 
@@ -552,7 +590,9 @@ Each card has a group name label positioned above a rounded rectangle displaying
 
 **Purpose:** Visual board showing issues as cards arranged in four vertical swim-lanes by status (New, Active, Escalated, Monitoring). Provides a quick overview of issue flow and enables navigation to issue detail.
 
-**Header Bar:** Yellow/orange bar displaying the screen title with inline navigation buttons: "+ Submit New Issue" → SubmitScreen, "Dashboard" → DashboardScreen, "Group Allocation" → GroupAllocationScreen, "View Tracker>" → TrackerScreen. Uses the consistent full navigation bar pattern.
+**Header Bar:** Orange bar with hamburger menu (☰), "Kanban Board" title, and "+ Submit New Issue" CTA. Same unified navigation pattern as all screens.
+
+**OnVisible:** `UpdateContext({varShowNav: false})`
 
 | Component | Type | Data Source | Key Logic |
 |-----------|------|-------------|-----------|
@@ -583,7 +623,9 @@ Each card has a group name label positioned above a rounded rectangle displaying
 
 **Note:** Closed issues are excluded from all four galleries. The Kanban view focuses on open/active workflow stages only.
 
-**Approximate control count:** 28 (4 galleries × 7 template controls + 4 column headers + header bar + title + back button).
+**Hamburger Navigation:** Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = Kanban Board (highlighted).
+
+**Approximate control count:** 37 (4 galleries × 7 template controls + 4 column headers + header bar + title + 9 hamburger navigation controls).
 
 ---
 

@@ -1,0 +1,355 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  IssueDetailScreen:
+    Properties:
+      Fill: =RGBA(245, 247, 250, 1)
+      LoadingSpinnerColor: =RGBA(202, 80, 16, 1)
+    Children:
+      - Rect_Detail_HeaderBar:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(13,31,60,1)
+            FocusedBorderThickness: =4
+            Height: =60
+            HoverFill: =RGBA(202, 80, 16, 1)
+            PressedFill: =RGBA(202, 80, 16, 1)
+            Width: =1366
+      - Gal_Detail_UpdateHistory:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_TwoTextVariant_ver5.0
+          Properties:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Height: =280
+            Items: =SortByColumns(Filter(OFR_UpdateHistory, ParentItemID = Gal_Tracker_Issues.Selected.ItemID), "UpdateDate", SortOrder.Descending)
+            TemplateFill: =RGBA(255, 255, 255, 1)
+            TemplateSize: =60
+            Width: =1326
+            X: =40
+            Y: =Lbl_Detail_UpdateHistory.Y + Lbl_Detail_UpdateHistory.Height + 5
+          Children:
+            - Title6:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Segoe UI'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =14
+                  Text: |-
+                    =Text(ThisItem.UpdateDate, "yyyy-mm-dd") & " | " & ThisItem.StatusAtUpdate.Value & " | By: " & ThisItem.UpdatedBy
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Parent.TemplateWidth - 86
+                  X: =16
+                  Y: =(Parent.TemplateHeight - (Self.Size * 1.8 + Subtitle6.Size * 1.8)) / 2
+            - Subtitle6:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(51, 51, 51, 1)
+                  Font: =Font.'Segoe UI'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.Notes
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Title6.Width
+                  X: =Title6.X
+                  Y: =Title6.Y + Title6.Height
+            - NextArrow6:
+                Control: Classic/Icon@2.5.0
+                Properties:
+                  AccessibleLabel: =Self.Tooltip
+                  BorderColor: =RGBA(166, 166, 166, 1)
+                  Color: =RGBA(166, 166, 166, 1)
+                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                  DisabledColor: =RGBA(220, 220, 220, 1)
+                  DisabledFill: =RGBA(0, 0, 0, 0)
+                  FocusedBorderThickness: =4
+                  Height: =50
+                  HoverBorderColor: =RGBA(0, 0, 0, 0)
+                  HoverColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+                  HoverFill: =RGBA(0, 0, 0, 0)
+                  Icon: =Icon.ChevronRight
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =16
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =16
+                  PressedBorderColor: =RGBA(0, 0, 0, 0)
+                  PressedColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+                  PressedFill: =RGBA(0, 0, 0, 0)
+                  Tooltip: ="View item details"
+                  Width: =50
+                  X: =Parent.TemplateWidth - Self.Width - 12
+                  Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+            - Separator6:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 0)
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Height: =8
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - Self.Height
+            - Rectangle10:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 0)
+                  Fill: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+                  Height: =Parent.TemplateHeight - Separator6.Height
+                  OnSelect: =Select(Parent)
+                  Visible: =ThisItem.IsSelected
+                  Width: =4
+      - Lbl_Detail_Title:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =Color.White
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =50
+            Size: =18
+            Text: ="Issue Detail"
+            Width: =300
+            X: =20
+            Y: =5
+      - Btn_Detail_BackToTracker:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =Color.White
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(208,74,2,1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |
+              =RGBA(240,240,240,1)
+            OnSelect: =Navigate(TrackerScreen, ScreenTransition.Fade)
+            PressedBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |
+              =RGBA(210,215,226,1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Text: ="< Tracker"
+            X: =1150
+            Y: =10
+      - Lbl_Detail_IssueInfo:
+          Control: Label@2.5.1
+          Properties:
+            AutoHeight: =true
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(55, 71, 79, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =14
+            Text: |-
+              =Gal_Tracker_Issues.Selected.ItemID & " — " & Gal_Tracker_Issues.Selected.Title & Char(10) & "Owner: " & Gal_Tracker_Issues.Selected.Owner & "  |  Priority: " & Gal_Tracker_Issues.Selected.Priority.Value & "  |  Status: " & Gal_Tracker_Issues.Selected.Status.Value & "  |  Group: " & Gal_Tracker_Issues.Selected.FunctionalGroup.Value & Char(10) & "Raised: " & Text(Gal_Tracker_Issues.Selected.DateRaised, "yyyy-mm-dd") & "  |  Updated: " & Text(Gal_Tracker_Issues.Selected.LastUpdated, "yyyy-mm-dd")
+            Width: =1326
+            X: =20
+            Y: =70
+      - Lbl_Detail_UpdateHistory:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(55, 71, 79, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Size: =16
+            Text: ="Update History"
+            X: =20
+            Y: =Lbl_Detail_IssueInfo.Y + Lbl_Detail_IssueInfo.Height + 10
+      - Lbl_Detail_AddUpdate:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(55, 71, 79, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Size: =16
+            Text: ="Add Update"
+            X: =20
+            Y: =Gal_Detail_UpdateHistory.Y + Gal_Detail_UpdateHistory.Height + 10
+      - Txt_Detail_UpdateNotes:
+          Control: Classic/TextInput@2.3.2
+          Properties:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            Height: =80
+            HintText: ="Enter update notes..."
+            HoverBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            Mode: =TextMode.MultiLine
+            PressedBorderColor: =RGBA(202, 80, 16, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =900
+            X: =20
+            Y: =Lbl_Detail_AddUpdate.Y + Lbl_Detail_AddUpdate.Height + 5
+      - Dd_Detail_Status:
+          Control: Classic/DropDown@2.3.1
+          Properties:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =Gal_Tracker_Issues.Selected.Status.Value
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            HoverBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: =["New", "Active", "Monitoring", "Escalated", "Closed"]
+            Items.Value: =Value
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(202, 80, 16, 1)
+            SelectionColor: =RGBA(255, 255, 255, 1)
+            SelectionFill: =RGBA(202, 80, 16, 1)
+            Width: =200
+            X: =940
+            Y: =Lbl_Detail_AddUpdate.Y + Lbl_Detail_AddUpdate.Height + 5
+      - Btn_Detail_SaveUpdate:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(208,74,2,1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |
+              =RGBA(195,76,47,1)
+            OnSelect: |
+              =Patch(OFR_UpdateHistory, Defaults(OFR_UpdateHistory), {Title: Gal_Tracker_Issues.Selected.ItemID, ParentItemID: Gal_Tracker_Issues.Selected.ItemID, UpdateDate: Now(), StatusAtUpdate: {Value: Dd_Detail_Status.Selected.Value}, Notes: Txt_Detail_UpdateNotes.Text, UpdatedBy: User().FullName}); Patch(OFR_Issues, Gal_Tracker_Issues.Selected, {LastUpdated: Now(), Status: {Value: Dd_Detail_Status.Selected.Value}, FunctionalGroup: Dd_Detail_ReassignGroup.Selected, DaysSinceUpdate: 0}); Reset(Txt_Detail_UpdateNotes); Reset(Dd_Detail_Status); Reset(Dd_Detail_ReassignGroup)
+            PressedBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |
+              =RGBA(167,69,44,1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Text: ="Save Update"
+            X: =1160
+            Y: =Lbl_Detail_AddUpdate.Y + Lbl_Detail_AddUpdate.Height + 5
+      - Dd_Detail_ReassignGroup:
+          Control: Classic/DropDown@2.3.1
+          Properties:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: |
+              =varSelectedIssue.FunctionalGroup.Value
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            HoverBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: |
+              =Choices(OFR_Issues.FunctionalGroup)
+            Items.Value: =Value
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(202, 80, 16, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(202, 80, 16, 1)
+            SelectionColor: =RGBA(255, 255, 255, 1)
+            SelectionFill: =RGBA(202, 80, 16, 1)
+            Width: |
+              =300
+            X: |
+              =140
+            Y: |
+              =Txt_Detail_UpdateNotes.Y + Txt_Detail_UpdateNotes.Height + 5
+      - Lbl_Detail_ReassignGroup:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |
+              =RGBA(100,100,100,1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: |
+              =FontWeight.Semibold
+            Height: |
+              =40
+            Text: |
+              ="Reassign Group"
+            Width: |
+              =120
+            X: |
+              =20
+            Y: |
+              =Dd_Detail_ReassignGroup.Y + (Dd_Detail_ReassignGroup.Height - Self.Height) / 2

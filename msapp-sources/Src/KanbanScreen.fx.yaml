@@ -1,0 +1,668 @@
+KanbanScreen As screen:
+    Fill: =RGBA(245, 247, 250, 1)
+    LoadingSpinnerColor: =RGBA(202, 80, 16, 1)
+    OnVisible: |-
+        =UpdateContext({varShowNav: false})
+
+    Gal_Kanban_New As gallery.galleryVertical:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =640
+        Items: |
+            =Filter(OFR_Issues, Status.Value = "New")
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        OnSelect: |
+            =Navigate(IssueDetailScreen, ScreenTransition.None, {varSelectedIssue: ThisItem})
+        TemplateSize: |
+            =125
+        Width: =320
+        X: =15
+        Y: =100
+        ZIndex: =1
+
+        Lbl_number_title As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |
+                =RGBA(65, 83, 133, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: |
+                =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: |
+                =FontWeight.Bold
+            Height: |
+                =25
+            OnSelect: =Select(Parent)
+            Size: =10
+            Text: |
+                =ThisItem.ItemID & " - " & Left(ThisItem.Title, 35)
+            Width: |
+                =310
+            X: =5
+            Y: |
+                =5
+            ZIndex: =1
+
+        Lbl_owner As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: |
+                =20
+            OnSelect: =Select(Parent)
+            Size: |
+                =11
+            Text: |
+                ="Owner: " & ThisItem.Owner
+            Width: |
+                =310
+            X: |
+                =5
+            Y: |
+                =32
+            ZIndex: =2
+
+        Lbl_age As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |
+                =RGBA(100, 100, 100, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: |
+                =20
+            Italic: |
+                =true
+            OnSelect: =Select(Parent)
+            Size: |
+                =10
+            Text: |
+                =ThisItem.FunctionalGroup.Value & " | " & Text(DateDiff(ThisItem.Created, Today()), "0") & "d"
+            Width: |
+                =310
+            X: |
+                =5
+            Y: |
+                =55
+            ZIndex: =3
+
+    Gal_Kanban_Active As gallery.galleryVertical:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =640
+        Items: |
+            =Filter(OFR_Issues, Status.Value = "Active")
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        OnSelect: |-
+            =Navigate(IssueDetailScreen, ScreenTransition.None, {varSelectedIssue: ThisItem})
+        TemplateSize: =125
+        Width: =320
+        X: =349
+        Y: =100
+        ZIndex: =1
+
+        Lbl_number_title2 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(65, 83, 133, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =25
+            OnSelect: =Select(Parent)
+            Size: =10
+            Text: =ThisItem.ItemID & " - " & Left(ThisItem.Title, 35)
+            Width: =310
+            X: =5
+            Y: =5
+            ZIndex: =1
+
+        Lbl_owner1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: |
+                =11
+            Text: |-
+                ="Owner: " & ThisItem.Owner
+            Width: =310
+            X: =5
+            Y: =32
+            ZIndex: =2
+
+        Lbl_group_age As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(100, 100, 100, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            Italic: =true
+            OnSelect: =Select(Parent)
+            Size: =10
+            Text: =ThisItem.FunctionalGroup.Value & " | " & Text(DateDiff(ThisItem.Created, Today()), "0") & "d"
+            Width: =310
+            X: =5
+            Y: =55
+            ZIndex: =3
+
+    Gal_Kanban_Escalated As gallery.galleryVertical:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =640
+        Items: =Filter(OFR_Issues, Status.Value = "Escalated")
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        OnSelect: |-
+            =Navigate(IssueDetailScreen, ScreenTransition.None, {varSelectedIssue: ThisItem})
+        TemplateSize: =125
+        Width: =320
+        X: =683
+        Y: =100
+        ZIndex: =1
+
+        Lbl_number_title3 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |
+                =RGBA(65, 83, 133, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =25
+            OnSelect: =Select(Parent)
+            Size: =10
+            Text: =ThisItem.ItemID & " - " & Left(ThisItem.Title, 35)
+            Width: =310
+            X: =5
+            Y: =5
+            ZIndex: =1
+
+        Lbl_owner2 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: |
+                =11
+            Text: |
+                ="Owner: " & ThisItem.Owner
+            Width: =310
+            X: =5
+            Y: =32
+            ZIndex: =2
+
+        Lbl_group_age2 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |
+                =RGBA(100, 100, 100, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            Italic: =true
+            OnSelect: =Select(Parent)
+            Size: =10
+            Text: |
+                =ThisItem.FunctionalGroup.Value & " | " & Text(DateDiff(ThisItem.Created, Today()), "0") & "d"
+            Width: =310
+            X: =5
+            Y: =55
+            ZIndex: =3
+
+    Gal_Kanban_Monitoring As gallery.galleryVertical:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =640
+        Items: |
+            =Filter(OFR_Issues, Status.Value = "Monitoring")
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        OnSelect: |
+            =Navigate(IssueDetailScreen, ScreenTransition.None, {varSelectedIssue: ThisItem})
+        TemplateSize: |
+            =125
+        Width: =320
+        X: =1017
+        Y: =100
+        ZIndex: =1
+
+        Lbl_number_title4 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |
+                =RGBA(65, 83, 133, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: |
+                =FontWeight.Bold
+            Height: =25
+            OnSelect: =Select(Parent)
+            Size: =10
+            Text: |
+                =ThisItem.ItemID & " - " & Left(ThisItem.Title, 35)
+            Width: =310
+            X: =5
+            Y: =5
+            ZIndex: =1
+
+        Lbl_owner3 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =11
+            Text: |
+                ="Owner: " & ThisItem.Owner
+            Width: =310
+            X: =5
+            Y: =32
+            ZIndex: =2
+
+        Lbl_group_age3 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |
+                =RGBA(100, 100, 100, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            Italic: |
+                =true
+            OnSelect: =Select(Parent)
+            Size: =10
+            Text: |
+                =ThisItem.FunctionalGroup.Value & " | " & Text(DateDiff(ThisItem.Created, Today()), "0") & "d"
+            Width: =310
+            X: =5
+            Y: =55
+            ZIndex: =3
+
+    Lbl_Kanban_New As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: |
+            =RGBA(255, 255, 255, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: |
+            =RGBA(65, 83, 133, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Height: =35
+        Text: |
+            ="New"
+        Width: =320
+        X: =15
+        Y: =65
+        ZIndex: =4
+
+    Lbl_Kanban_Active As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: |
+            =RGBA(255, 255, 255, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: |
+            =RGBA(208, 74, 2, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Height: =35
+        Text: |
+            ="Active"
+        Width: =320
+        X: =349
+        Y: =65
+        ZIndex: =5
+
+    Lbl_Kanban_Escalated As label:
+        Align: |
+            =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: |
+            =RGBA(255, 255, 255, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: |
+            =RGBA(224, 48, 30, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: |
+            =FontWeight.Bold
+        Height: =35
+        Text: |
+            ="Escalated"
+        Width: =320
+        X: =683
+        Y: =65
+        ZIndex: =6
+
+    Lbl_Kanban_Monitoring As label:
+        Align: |
+            =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: |
+            =RGBA(255, 255, 255, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: |
+            =RGBA(228, 92, 43, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: |
+            =FontWeight.Bold
+        Height: =35
+        Text: |
+            ="Monitoring"
+        Width: =320
+        X: =1017
+        Y: =65
+        ZIndex: =7
+
+    Rect_Kanban_HeaderBar As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(208, 74, 2, 1)
+        Fill: =RGBA(208, 74, 2, 1)
+        FocusedBorderThickness: =4
+        Height: =55
+        HoverFill: =RGBA(208, 74, 2, 1)
+        PressedFill: =RGBA(208, 74, 2, 1)
+        Width: =1366
+        ZIndex: =8
+
+    Lbl_Kanban_Title As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =Color.White
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Height: =35
+        Size: =20
+        Text: ="Kanban Board"
+        Width: =250
+        X: =60
+        Y: =10
+        ZIndex: =13
+
+    Btn_Kanban_HamburgerMenu As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =Color.White
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =Color.Transparent
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        Height: =40
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =Color.White
+        HoverFill: =RGBA(195, 76, 47, 1)
+        OnSelect: =UpdateContext({varShowNav: !varShowNav})
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =Color.White
+        PressedFill: =RGBA(167, 69, 44, 1)
+        Size: =22
+        Text: =Char(9776)
+        Width: =45
+        X: =10
+        Y: =8
+        ZIndex: =14
+    Btn_Kanban_SubmitCTA As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =RGBA(208, 74, 2, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =Color.White
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =35
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(208, 74, 2, 1)
+        HoverFill: =RGBA(240, 240, 240, 1)
+        OnSelect: =Navigate(SubmitScreen)
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =RGBA(208, 74, 2, 1)
+        PressedFill: =RGBA(210, 215, 226, 1)
+        RadiusBottomLeft: =6
+        RadiusBottomRight: =6
+        RadiusTopLeft: =6
+        RadiusTopRight: =6
+        Size: =12
+        Text: ="+ Submit New Issue"
+        Width: =180
+        X: =1170
+        Y: =10
+        ZIndex: =15
+    Rect_Kanban_NavOverlay As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        Fill: =RGBA(0, 0, 0, 0.01)
+        Height: =768
+        OnSelect: =UpdateContext({varShowNav: false})
+        Visible: =varShowNav
+        Width: =1366
+        ZIndex: =16
+    Rect_Kanban_NavDropdown As rectangle:
+        BorderColor: =RGBA(200, 200, 200, 1)
+        BorderStyle: =BorderStyle.Solid
+        BorderThickness: =1
+        Fill: =Color.White
+        Height: =220
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        Visible: =varShowNav
+        Width: =250
+        X: =10
+        Y: =55
+        ZIndex: =17
+    Btn_Kanban_NavDashboard As button:
+        Align: =Align.Left
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =RGBA(45, 45, 45, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =Color.Transparent
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Normal
+        Height: =40
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(45, 45, 45, 1)
+        HoverFill: =RGBA(240, 240, 240, 1)
+        OnSelect: =UpdateContext({varShowNav: false}); Navigate(DashboardScreen)
+        PaddingLeft: =15
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =RGBA(45, 45, 45, 1)
+        PressedFill: =RGBA(210, 215, 226, 1)
+        Size: =13
+        Text: ="  Dashboard"
+        Visible: =varShowNav
+        Width: =250
+        X: =10
+        Y: =55
+        ZIndex: =18
+    Btn_Kanban_NavTracker As button:
+        Align: =Align.Left
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =RGBA(45, 45, 45, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =Color.Transparent
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Normal
+        Height: =40
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(45, 45, 45, 1)
+        HoverFill: =RGBA(240, 240, 240, 1)
+        OnSelect: =UpdateContext({varShowNav: false}); Navigate(TrackerScreen)
+        PaddingLeft: =15
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =RGBA(45, 45, 45, 1)
+        PressedFill: =RGBA(210, 215, 226, 1)
+        Size: =13
+        Text: ="  Issue Tracker"
+        Visible: =varShowNav
+        Width: =250
+        X: =10
+        Y: =95
+        ZIndex: =19
+    Btn_Kanban_NavGroupAlloc As button:
+        Align: =Align.Left
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =RGBA(45, 45, 45, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =Color.Transparent
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Normal
+        Height: =40
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(45, 45, 45, 1)
+        HoverFill: =RGBA(240, 240, 240, 1)
+        OnSelect: =UpdateContext({varShowNav: false}); Navigate(GroupAllocationScreen)
+        PaddingLeft: =15
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =RGBA(45, 45, 45, 1)
+        PressedFill: =RGBA(210, 215, 226, 1)
+        Size: =13
+        Text: ="  Group Allocation"
+        Visible: =varShowNav
+        Width: =250
+        X: =10
+        Y: =135
+        ZIndex: =20
+    Btn_Kanban_NavKanban As button:
+        Align: =Align.Left
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =RGBA(65, 83, 133, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(210, 215, 226, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Height: =40
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(45, 45, 45, 1)
+        HoverFill: =RGBA(240, 240, 240, 1)
+        OnSelect: =UpdateContext({varShowNav: false}); Navigate(KanbanScreen)
+        PaddingLeft: =15
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =RGBA(45, 45, 45, 1)
+        PressedFill: =RGBA(210, 215, 226, 1)
+        Size: =13
+        Text: ="  Kanban Board"
+        Visible: =varShowNav
+        Width: =250
+        X: =10
+        Y: =175
+        ZIndex: =21
+    Btn_Kanban_NavSubmit As button:
+        Align: =Align.Left
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =RGBA(45, 45, 45, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =Color.Transparent
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Normal
+        Height: =40
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(45, 45, 45, 1)
+        HoverFill: =RGBA(240, 240, 240, 1)
+        OnSelect: =UpdateContext({varShowNav: false}); Navigate(SubmitScreen)
+        PaddingLeft: =15
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =RGBA(45, 45, 45, 1)
+        PressedFill: =RGBA(210, 215, 226, 1)
+        Size: =13
+        Text: ="  Submit New Issue"
+        Visible: =varShowNav
+        Width: =250
+        X: =10
+        Y: =215
+        ZIndex: =22

@@ -1,7 +1,7 @@
 # OFR Issue Tracker — Test Plan
 
-**Version:** 1.0
-**Date:** February 18, 2025
+**Version:** 1.2
+**Date:** February 21, 2026
 **Application:** OFR Issue Tracker (M365-Native)
 **Environment:** papercuts.cafe (default) — M365 Business Standard + Power Apps Developer + Power Automate Free
 
@@ -9,7 +9,7 @@
 
 ## 1. Test Objectives
 
-Validate that the M365-native OFR Issue Tracker correctly supports the full issue lifecycle: intake submission, triage, promotion to active tracking, issue updates with audit trail, staleness calculations, dashboard KPIs, and filtering/search. Confirm all three layers (SharePoint data, Power Apps UI, Power Automate automation) work together end-to-end.
+Validate that the M365-native OFR Issue Tracker correctly supports the full issue lifecycle: intake submission, triage, promotion to active tracking, issue updates with audit trail, staleness calculations, dashboard KPIs, filtering/search, and consistent hamburger navigation across all screens. Confirm all three layers (SharePoint data, Power Apps UI, Power Automate automation) work together end-to-end.
 
 ---
 
@@ -42,8 +42,8 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Navigate to OFR_Issues list in SharePoint |
-| **Steps** | 1. Open https://papercutscafe.sharepoint.com/sites/OFRIssueTracker/Lists/OFR_Issues <br> 2. Verify all 10 columns exist: Title, ItemID, Owner, Priority, Status, DateRaised, LastUpdated, NextAction, DaysSinceUpdate, StalenessFlag <br> 3. Verify column types match spec (Choice fields have correct options) |
-| **Expected Result** | All columns present with correct types. Priority has High/Medium/Low. Status has New/Active/Monitoring/Escalated/Closed. StalenessFlag has Current/Aging/Stale. |
+| **Steps** | 1. Open https://papercutscafe.sharepoint.com/sites/OFRIssueTracker/Lists/OFR_Issues <br> 2. Verify all 11 columns exist: Title, ItemID, Owner, Priority, Status, DateRaised, LastUpdated, NextAction, DaysSinceUpdate, StalenessFlag, FunctionalGroup <br> 3. Verify column types match spec (Choice fields have correct options) |
+| **Expected Result** | All columns present with correct types. Priority has High/Medium/Low. Status has New/Active/Monitoring/Escalated/Closed. StalenessFlag has Current/Aging/Stale. FunctionalGroup has all 10 group choices. |
 | **Priority** | High |
 
 #### TC-SP-02: Verify OFR_UpdateHistory list schema
@@ -58,8 +58,8 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Navigate to OFR_IntakeQueue list |
-| **Steps** | 1. Open OFR_IntakeQueue list <br> 2. Verify 6 columns: Title, Owner, Priority, Description, DateSubmitted, TriageStatus <br> 3. Verify TriageStatus choices: Pending/Promoted/Dismissed |
-| **Expected Result** | All columns present with correct types and choice values. |
+| **Steps** | 1. Open OFR_IntakeQueue list <br> 2. Verify 7 columns: Title, Owner, Priority, Description, DateSubmitted, TriageStatus, FunctionalGroup <br> 3. Verify TriageStatus choices: Pending/Promoted/Dismissed/Accepted/Rejected <br> 4. Verify default value is "Pending" <br> 5. Verify FunctionalGroup has all 10 group choices |
+| **Expected Result** | All columns present with correct types. TriageStatus has all 5 choice values. FunctionalGroup has 10 choices. |
 | **Priority** | High |
 
 #### TC-SP-04: Verify sample data integrity
@@ -68,6 +68,22 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Precondition** | Sample data has been loaded |
 | **Steps** | 1. Open OFR_Issues — verify 8 items (OFR-1 to OFR-8) <br> 2. Open OFR_UpdateHistory — verify 17 entries <br> 3. Open OFR_IntakeQueue — verify 2 pending items <br> 4. Spot-check: OFR-1 should be High/Active, OFR-3 should be Medium/Active/Stale, OFR-5 should be Low/Monitoring |
 | **Expected Result** | All records present with correct field values matching the sample data specification. |
+| **Priority** | High |
+
+#### TC-SP-05: Verify FunctionalGroup column on OFR_Issues
+| Field | Value |
+|-------|-------|
+| **Precondition** | Navigate to OFR_Issues list in SharePoint |
+| **Steps** | 1. Open OFR_Issues list <br> 2. Verify FunctionalGroup column exists as Choice type <br> 3. Verify all 10 choices: Risk Management Office, Engagement Risk, Client Risk and KYC, Technology Risk & AI Trust, National Security, OGC General Counsel, OGC Privacy, OGC Contracts, Internal Audit, Independence <br> 4. Verify sample data has FunctionalGroup values for all 8 records |
+| **Expected Result** | FunctionalGroup column exists with all 10 choices. Sample data has correct group assignments. |
+| **Priority** | High |
+
+#### TC-SP-06: Verify FunctionalGroup column on OFR_IntakeQueue
+| Field | Value |
+|-------|-------|
+| **Precondition** | Navigate to OFR_IntakeQueue list in SharePoint |
+| **Steps** | 1. Open OFR_IntakeQueue list <br> 2. Verify FunctionalGroup column exists as Choice type <br> 3. Verify all 10 choices match OFR_Issues.FunctionalGroup choices |
+| **Expected Result** | FunctionalGroup column exists with identical 10 choices as OFR_Issues. |
 | **Priority** | High |
 
 ---
@@ -106,12 +122,120 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Expected Result** | Item's TriageStatus changes to "Dismissed" in SharePoint. Item no longer appears in the pending intake gallery. KPIs update if applicable. |
 | **Priority** | Medium |
 
-#### TC-PA-D05: Navigate to Tracker Screen
+#### TC-PA-D05: Navigate to Tracker Screen via hamburger menu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Dashboard Screen loaded |
-| **Steps** | 1. Click "View Tracker" or navigation button <br> 2. Verify navigation to Tracker Screen |
-| **Expected Result** | Tracker Screen loads showing the issue table with all open items. |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Issue Tracker" in the dropdown <br> 3. Verify navigation to Tracker Screen |
+| **Expected Result** | Dropdown closes. Tracker Screen loads showing the issue table with all open items. |
+| **Priority** | High |
+
+#### TC-PA-D06: Intake Review panel opens on item click
+| Field | Value |
+|-------|-------|
+| **Precondition** | Dashboard Screen loaded, at least one pending intake item exists |
+| **Steps** | 1. Click on a pending intake item in the gallery <br> 2. Verify the Intake Review panel opens on the right side <br> 3. Verify panel displays: Title, Description, Priority, Date Submitted <br> 4. Verify "Assign Owner" text input and "Accept into Tracker" / "Reject" buttons are visible |
+| **Expected Result** | Panel opens with correct data from the selected intake item. All fields populated. Accept/Reject buttons visible. |
+| **Priority** | High |
+
+#### TC-PA-D07: Accept intake item via panel
+| Field | Value |
+|-------|-------|
+| **Precondition** | Intake Review panel is open for a pending item |
+| **Steps** | 1. Enter an owner name in the "Assign Owner" field (e.g., "Test User") <br> 2. Click "Accept into Tracker" <br> 3. Verify the panel closes <br> 4. Verify the item disappears from the intake gallery <br> 5. Verify a new issue appears in OFR_Issues with Title, Priority from the intake item, Owner from the text input, Status = "New" <br> 6. Verify the intake item's TriageStatus is now "Accepted" in SharePoint |
+| **Expected Result** | New issue created in OFR_Issues with correct data. Intake item marked "Accepted". Panel closes. Success notification displayed. |
+| **Priority** | High |
+
+#### TC-PA-D08: Reject intake item via panel
+| Field | Value |
+|-------|-------|
+| **Precondition** | Intake Review panel is open for a pending item |
+| **Steps** | 1. Click "Reject" button <br> 2. Verify the panel closes <br> 3. Verify the item disappears from the intake gallery <br> 4. Verify the intake item's TriageStatus is now "Rejected" in SharePoint |
+| **Expected Result** | Intake item marked "Rejected". Panel closes. Warning notification displayed. No new issue created. |
+| **Priority** | High |
+
+#### TC-PA-D09: Close panel without action
+| Field | Value |
+|-------|-------|
+| **Precondition** | Intake Review panel is open |
+| **Steps** | 1. Click the "X" close button <br> 2. Verify the panel closes <br> 3. Verify the intake item remains in the gallery with "Pending" status |
+| **Expected Result** | Panel closes. No data changes. Item still pending. |
+| **Priority** | Medium |
+
+#### TC-PA-D10: Panel hidden on initial load
+| Field | Value |
+|-------|-------|
+| **Precondition** | Navigate to Dashboard Screen |
+| **Steps** | 1. Verify the Intake Review panel is not visible when the Dashboard first loads |
+| **Expected Result** | Panel controls are hidden (Visible = false). Only KPIs and intake gallery are visible. |
+| **Priority** | Medium |
+
+#### TC-PA-D11: FunctionalGroup flows through acceptance
+| Field | Value |
+|-------|-------|
+| **Precondition** | A pending intake item exists with FunctionalGroup set |
+| **Steps** | 1. Click on the intake item to open Intake Review panel <br> 2. Enter an owner name <br> 3. Click "Accept into Tracker" <br> 4. Navigate to Tracker or open OFR_Issues in SharePoint <br> 5. Find the newly created issue <br> 6. Verify FunctionalGroup matches the intake item's FunctionalGroup |
+| **Expected Result** | FunctionalGroup value flows from OFR_IntakeQueue to OFR_Issues during acceptance. |
+| **Priority** | High |
+
+#### TC-PA-D12: Navigate to Group Allocation Screen via hamburger menu
+| Field | Value |
+|-------|-------|
+| **Precondition** | Dashboard Screen loaded |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Group Allocation" in the dropdown <br> 3. Verify navigation to GroupAllocationScreen |
+| **Expected Result** | Dropdown closes. GroupAllocationScreen loads showing 10 group cards with active issue counts. |
+| **Priority** | High |
+
+#### TC-PA-D13: Navigate to Kanban Board Screen via hamburger menu
+| Field | Value |
+|-------|-------|
+| **Precondition** | Dashboard Screen loaded |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Kanban Board" in the dropdown <br> 3. Verify navigation to KanbanScreen |
+| **Expected Result** | Dropdown closes. KanbanScreen loads showing 4 status columns with issue cards. |
+| **Priority** | High |
+
+---
+
+### 3.2b — Power Apps: Submit Screen
+
+#### TC-PA-S01: Navigate to Submit Screen via header CTA
+| Field | Value |
+|-------|-------|
+| **Precondition** | Dashboard Screen loaded |
+| **Steps** | 1. Click the "+ Submit New Issue" button in the header bar (right side) <br> 2. Verify navigation to SubmitScreen |
+| **Expected Result** | Submit Screen loads showing the issue submission form with Title, Priority, Description fields. |
+| **Priority** | High |
+
+#### TC-PA-S02: Submit a new issue
+| Field | Value |
+|-------|-------|
+| **Precondition** | Submit Screen loaded |
+| **Steps** | 1. Enter Title: "Test Submit Screen Issue" <br> 2. Select Priority: High <br> 3. Enter Description: "Testing the submit screen form" <br> 4. Click "Submit" |
+| **Expected Result** | New item created in OFR_IntakeQueue with TriageStatus = "Pending", DateSubmitted = now. Success notification displayed. Form resets. |
+| **Priority** | High |
+
+#### TC-PA-S03: Back to Dashboard from Submit Screen
+| Field | Value |
+|-------|-------|
+| **Precondition** | Submit Screen loaded |
+| **Steps** | 1. Click the "< Dashboard" back button in the header bar (between hamburger and title) |
+| **Expected Result** | Returns to Dashboard Screen. |
+| **Priority** | Low |
+
+#### TC-PA-S04: FunctionalGroup dropdown present on Submit Screen
+| Field | Value |
+|-------|-------|
+| **Precondition** | Submit Screen loaded |
+| **Steps** | 1. Verify a FunctionalGroup dropdown is visible on the form <br> 2. Open the dropdown <br> 3. Verify all 10 functional groups are listed as options |
+| **Expected Result** | Dropdown present with all 10 groups: Risk Management Office, Engagement Risk, Client Risk and KYC, Technology Risk & AI Trust, National Security, OGC General Counsel, OGC Privacy, OGC Contracts, Internal Audit, Independence. |
+| **Priority** | High |
+
+#### TC-PA-S05: FunctionalGroup value saved on submit
+| Field | Value |
+|-------|-------|
+| **Precondition** | Submit Screen loaded |
+| **Steps** | 1. Fill in Title, Priority, Description <br> 2. Select "OGC Privacy" from the FunctionalGroup dropdown <br> 3. Click Submit <br> 4. Open OFR_IntakeQueue in SharePoint <br> 5. Find the new intake item |
+| **Expected Result** | New intake item has FunctionalGroup = "OGC Privacy". |
 | **Priority** | High |
 
 ---
@@ -222,13 +346,29 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Expected Result** | Issue Detail Screen loads showing OFR-2 header info and update history. |
 | **Priority** | High |
 
-#### TC-PA-T14: Back to Dashboard navigation
+#### TC-PA-T14: Navigate to Dashboard from Tracker via hamburger menu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Tracker Screen loaded |
-| **Steps** | 1. Click "Back to Dashboard" button |
-| **Expected Result** | Returns to Dashboard Screen with KPIs and intake gallery. |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Dashboard" in the dropdown |
+| **Expected Result** | Dropdown closes. Returns to Dashboard Screen with KPIs and intake gallery. |
 | **Priority** | Low |
+
+#### TC-PA-T15: FunctionalGroup column visible on Tracker
+| Field | Value |
+|-------|-------|
+| **Precondition** | Tracker Screen loaded |
+| **Steps** | 1. Verify a "Group" column header exists in the table <br> 2. Verify each row displays the FunctionalGroup value for that issue <br> 3. Verify long group names are truncated (hover for full name) |
+| **Expected Result** | Group column visible between Status and Days Stale. All 8 rows show correct FunctionalGroup values. Long names (e.g., "Technology Risk & AI Trust") are truncated with full text in tooltip. |
+| **Priority** | High |
+
+#### TC-PA-T16: Search by FunctionalGroup
+| Field | Value |
+|-------|-------|
+| **Precondition** | Tracker Screen loaded |
+| **Steps** | 1. Type "Privacy" in the search box <br> 2. Verify filtered results |
+| **Expected Result** | Only OFR-3 visible (FunctionalGroup = "OGC Privacy"). |
+| **Priority** | Medium |
 
 ---
 
@@ -294,9 +434,17 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Issue Detail Screen loaded |
-| **Steps** | 1. Click "Back to Tracker" button |
+| **Steps** | 1. Click the "< Tracker" back button in the header bar (between hamburger and title) |
 | **Expected Result** | Returns to Tracker Screen with filters preserved. |
 | **Priority** | Low |
+
+#### TC-PA-I09: FunctionalGroup displayed on Issue Detail
+| Field | Value |
+|-------|-------|
+| **Precondition** | Navigated to Issue Detail for OFR-1 |
+| **Steps** | 1. Verify the header section includes a "FUNCTIONAL GROUP" label <br> 2. Verify the value displayed is "Engagement Risk" (per sample data) |
+| **Expected Result** | FunctionalGroup label and value displayed in the issue header. Value matches the OFR_Issues record. |
+| **Priority** | Medium |
 
 ---
 
@@ -396,7 +544,179 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 
 ---
 
-### 3.7 — End-to-End Lifecycle Test
+### 3.7 — Power Apps: Group Allocation Screen
+
+#### TC-PA-G01: Group Allocation screen loads
+| Field | Value |
+|-------|-------|
+| **Precondition** | Navigate to GroupAllocationScreen from Dashboard |
+| **Steps** | 1. Click "Group Allocation" button on Dashboard <br> 2. Verify screen loads with header, 10 group cards, and summary labels |
+| **Expected Result** | Screen loads with all 10 group cards arranged in a 2×5 grid. Each card shows a group name and active issue count. |
+| **Priority** | High |
+
+#### TC-PA-G02: Group card counts are accurate
+| Field | Value |
+|-------|-------|
+| **Precondition** | GroupAllocationScreen loaded, sample data has 8 issues with FunctionalGroup values |
+| **Steps** | 1. Verify each card's count matches the number of non-Closed issues for that group <br> 2. Cross-reference with OFR_Issues SharePoint list <br> 3. Sample check: "Engagement Risk" should show 1 (OFR-1), "Risk Management Office" should show 2 (OFR-2, OFR-8), "Technology Risk & AI Trust" should show 2 (OFR-6, OFR-7) |
+| **Expected Result** | All card counts match the actual number of active (non-Closed) issues per group. |
+| **Priority** | High |
+
+#### TC-PA-G03: Closed issues excluded from counts
+| Field | Value |
+|-------|-------|
+| **Precondition** | An issue with a FunctionalGroup has been closed |
+| **Steps** | 1. Close an issue (change Status to Closed) <br> 2. Return to GroupAllocationScreen <br> 3. Verify the card for that group shows a reduced count |
+| **Expected Result** | Closed issues are not counted. Card count decreases by 1. |
+| **Priority** | High |
+
+#### TC-PA-G04: Unassigned count displays correctly
+| Field | Value |
+|-------|-------|
+| **Precondition** | GroupAllocationScreen loaded |
+| **Steps** | 1. Verify the "Unassigned" count at the bottom <br> 2. Create a test issue with no FunctionalGroup <br> 3. Refresh and verify unassigned count increases |
+| **Expected Result** | Unassigned count shows the number of active issues with blank FunctionalGroup. Displayed in orange as a warning. |
+| **Priority** | Medium |
+
+#### TC-PA-G05: Total active count matches
+| Field | Value |
+|-------|-------|
+| **Precondition** | GroupAllocationScreen loaded |
+| **Steps** | 1. Sum all 10 group card counts plus the unassigned count <br> 2. Compare with the total active count label |
+| **Expected Result** | Total active count = sum of all group counts + unassigned count. |
+| **Priority** | Medium |
+
+#### TC-PA-G06: Navigate to Dashboard from Group Allocation via hamburger menu
+| Field | Value |
+|-------|-------|
+| **Precondition** | GroupAllocationScreen loaded |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Dashboard" in the dropdown |
+| **Expected Result** | Dropdown closes. Returns to Dashboard Screen. |
+| **Priority** | Low |
+
+---
+
+### 3.8 — Power Apps: Kanban Board Screen
+
+#### TC-PA-K01: Kanban Board screen loads
+| Field | Value |
+|-------|-------|
+| **Precondition** | Navigate to KanbanScreen from Dashboard |
+| **Steps** | 1. Click "Kanban Board" button on Dashboard <br> 2. Verify screen loads with 4 colour-coded column headers and galleries |
+| **Expected Result** | Screen loads with 4 columns: New (blue header), Active (orange header), Escalated (red header), Monitoring (light orange header). |
+| **Priority** | High |
+
+#### TC-PA-K02: Issues appear in correct status columns
+| Field | Value |
+|-------|-------|
+| **Precondition** | KanbanScreen loaded with sample data |
+| **Steps** | 1. Verify New column contains OFR-6 (Status=New) <br> 2. Verify Active column contains OFR-1, OFR-2, OFR-5, OFR-7 (Status=Active) <br> 3. Verify Escalated column contains OFR-4 (Status=Escalated) <br> 4. Verify Monitoring column contains OFR-3, OFR-8 (Status=Monitoring) |
+| **Expected Result** | Each issue appears in the correct column matching its Status value. |
+| **Priority** | High |
+
+#### TC-PA-K03: Card content displays correctly
+| Field | Value |
+|-------|-------|
+| **Precondition** | KanbanScreen loaded |
+| **Steps** | 1. Examine a card (e.g., OFR-4 in Escalated) <br> 2. Verify card shows: ItemID (bold blue), Priority badge, Title, Owner, FunctionalGroup (italic), Days since update with staleness colour <br> 3. Verify left-edge staleness accent stripe colour |
+| **Expected Result** | All card elements display with correct data and formatting. Staleness stripe matches DaysSinceUpdate thresholds. |
+| **Priority** | High |
+
+#### TC-PA-K04: Card tap navigates to Issue Detail
+| Field | Value |
+|-------|-------|
+| **Precondition** | KanbanScreen loaded |
+| **Steps** | 1. Tap on OFR-4 card in the Escalated column <br> 2. Verify navigation to IssueDetailScreen |
+| **Expected Result** | IssueDetailScreen loads for OFR-4 with correct header and update history. |
+| **Priority** | High |
+
+#### TC-PA-K05: Column counts match expected
+| Field | Value |
+|-------|-------|
+| **Precondition** | KanbanScreen loaded with sample data |
+| **Steps** | 1. Count cards in each column <br> 2. Verify: New=1, Active=4, Escalated=1, Monitoring=2 |
+| **Expected Result** | Card counts per column match the number of issues with each status. Total across all columns = 8 (all open issues). |
+| **Priority** | Medium |
+
+#### TC-PA-K06: Staleness colours on cards
+| Field | Value |
+|-------|-------|
+| **Precondition** | KanbanScreen loaded with sample data |
+| **Steps** | 1. Find OFR-2 (DaysSinceUpdate=5) — accent stripe should be blue (Current) <br> 2. Find OFR-1 (DaysSinceUpdate=9) — accent stripe should be orange (Aging) <br> 3. Find OFR-3 (DaysSinceUpdate=22) — accent stripe should be red (Stale) |
+| **Expected Result** | Staleness accent stripe and days text match staleness thresholds: blue (0-7), orange (8-14), red (15+). |
+| **Priority** | Medium |
+
+#### TC-PA-K07: Closed issues excluded from Kanban
+| Field | Value |
+|-------|-------|
+| **Precondition** | At least one issue has Status = Closed |
+| **Steps** | 1. Close an issue via IssueDetailScreen <br> 2. Return to KanbanScreen <br> 3. Verify the closed issue does not appear in any column |
+| **Expected Result** | Closed issues do not appear on the Kanban board. Total card count decreases. |
+| **Priority** | High |
+
+#### TC-PA-K08: Navigate to Dashboard from Kanban via hamburger menu
+| Field | Value |
+|-------|-------|
+| **Precondition** | KanbanScreen loaded |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Dashboard" in the dropdown |
+| **Expected Result** | Dropdown closes. Returns to Dashboard Screen. |
+| **Priority** | Low |
+
+---
+
+### 3.8b — Power Apps: Hamburger Navigation Menu (Cross-Screen)
+
+#### TC-PA-NAV01: Hamburger menu opens on tap
+| Field | Value |
+|-------|-------|
+| **Precondition** | Any screen loaded (e.g., DashboardScreen) |
+| **Steps** | 1. Verify the ☰ hamburger button is visible in the top-left of the header bar <br> 2. Click the ☰ button <br> 3. Verify a dropdown panel appears below the header with 5 navigation items |
+| **Expected Result** | Dropdown panel appears (X=10, Y=55, W=250, H=220) with white background and 5 items: Dashboard, Issue Tracker, Group Allocation, Kanban Board, Submit New Issue. A transparent overlay covers the rest of the screen behind the panel. |
+| **Priority** | High |
+
+#### TC-PA-NAV02: Current screen highlighted in dropdown
+| Field | Value |
+|-------|-------|
+| **Precondition** | DashboardScreen loaded, hamburger menu open |
+| **Steps** | 1. Open the ☰ menu on DashboardScreen <br> 2. Verify "Dashboard" item is highlighted (blue text, light blue-grey fill) <br> 3. Navigate to TrackerScreen <br> 4. Open the ☰ menu <br> 5. Verify "Issue Tracker" item is now highlighted |
+| **Expected Result** | The current screen's entry in the dropdown is visually distinct (blue text with `RGBA(65,83,133,1)`, light fill with `RGBA(210,215,226,1)`). Other items use default styling. |
+| **Priority** | High |
+
+#### TC-PA-NAV03: Navigate to each screen from dropdown
+| Field | Value |
+|-------|-------|
+| **Precondition** | DashboardScreen loaded |
+| **Steps** | 1. Open ☰ menu, click "Issue Tracker" — verify TrackerScreen loads <br> 2. Open ☰ menu, click "Group Allocation" — verify GroupAllocationScreen loads <br> 3. Open ☰ menu, click "Kanban Board" — verify KanbanScreen loads <br> 4. Open ☰ menu, click "Submit New Issue" — verify SubmitScreen loads <br> 5. Open ☰ menu, click "Dashboard" — verify DashboardScreen loads |
+| **Expected Result** | Each menu item navigates to the correct screen. Dropdown closes after each selection. |
+| **Priority** | High |
+
+#### TC-PA-NAV04: Outside tap closes dropdown
+| Field | Value |
+|-------|-------|
+| **Precondition** | Any screen loaded, hamburger menu open |
+| **Steps** | 1. Open the ☰ menu <br> 2. Click anywhere outside the dropdown panel (on the transparent overlay) <br> 3. Verify the dropdown closes |
+| **Expected Result** | Dropdown panel and overlay disappear. No navigation occurs. Screen remains unchanged. |
+| **Priority** | Medium |
+
+#### TC-PA-NAV05: Dropdown closes after navigation
+| Field | Value |
+|-------|-------|
+| **Precondition** | Any screen loaded |
+| **Steps** | 1. Open the ☰ menu <br> 2. Click a navigation item (e.g., "Kanban Board") <br> 3. Verify the dropdown is closed on the destination screen <br> 4. Open the ☰ menu on the destination screen to confirm it starts closed |
+| **Expected Result** | Dropdown is not visible when a screen loads. `varShowNav` is reset to `false` in each screen's `OnVisible`. |
+| **Priority** | Medium |
+
+#### TC-PA-NAV06: Consistent hamburger menu across all 6 screens
+| Field | Value |
+|-------|-------|
+| **Precondition** | App is running |
+| **Steps** | 1. Visit each of the 6 screens: Dashboard, Tracker, Issue Detail, Submit, Group Allocation, Kanban <br> 2. On each screen, verify: ☰ hamburger button in top-left, "+ Submit New Issue" CTA in top-right, dropdown opens with 5 items, header bar is orange <br> 3. On IssueDetailScreen, verify "< Tracker" back button between hamburger and title <br> 4. On SubmitScreen, verify "< Dashboard" back button between hamburger and title |
+| **Expected Result** | All 6 screens have identical hamburger menu layout, styling, and behaviour. IssueDetailScreen and SubmitScreen additionally have back buttons. Header bar is consistently `RGBA(208,74,2,1)` orange, 55px height. |
+| **Priority** | High |
+
+---
+
+### 3.9 — End-to-End Lifecycle Test
 
 #### TC-E2E-01: Full lifecycle — new issue from intake to closure
 | Field | Value |
@@ -414,9 +734,17 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Expected Result** | Staleness progresses: Current (green) → Aging (amber) → Stale (red) as days increase. Colors in Power Apps match the flags in SharePoint. |
 | **Priority** | High |
 
+#### TC-E2E-03: Full lifecycle with FunctionalGroup — submit through Kanban and Group Allocation
+| Field | Value |
+|-------|-------|
+| **Precondition** | App is running, user is authenticated |
+| **Steps** | 1. **Submit:** Navigate to SubmitScreen, enter Title="E2E FunctionalGroup Test", Priority=High, select FunctionalGroup="Internal Audit", Description="Testing FunctionalGroup flow" <br> 2. **Verify intake:** Open OFR_IntakeQueue in SharePoint, confirm FunctionalGroup = "Internal Audit" <br> 3. **Accept:** On Dashboard, click the intake item, accept it into the tracker <br> 4. **Verify issue:** Open OFR_Issues in SharePoint, confirm FunctionalGroup = "Internal Audit" on the new issue <br> 5. **Verify Tracker:** Navigate to TrackerScreen, verify the Group column shows "Internal Audit" <br> 6. **Verify Detail:** Tap the issue, verify FunctionalGroup displayed in header <br> 7. **Verify Group Allocation:** Navigate to GroupAllocationScreen, verify "Internal Audit" card count increased by 1 <br> 8. **Verify Kanban:** Navigate to KanbanScreen, find the new issue in the "New" column, verify FunctionalGroup shows on the card |
+| **Expected Result** | FunctionalGroup flows end-to-end: Submit → IntakeQueue → Accept → OFR_Issues → visible on Tracker, Detail, Group Allocation, and Kanban screens. |
+| **Priority** | Critical |
+
 ---
 
-### 3.8 — Edge Cases & Negative Tests
+### 3.10 — Edge Cases & Negative Tests
 
 #### TC-NEG-01: Search with no results
 | Field | Value |
@@ -460,7 +788,7 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 
 ---
 
-### 3.9 — Access & Authentication
+### 3.11 — Access & Authentication
 
 #### TC-AUTH-01: SSO authentication
 | Field | Value |
@@ -492,7 +820,15 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-PA-D02 | Intake queue display | | | | |
 | TC-PA-D03 | New Issue form | | | | |
 | TC-PA-D04 | Dismiss intake | | | | |
-| TC-PA-D05 | Navigate to Tracker | | | | |
+| TC-PA-D05 | Nav to Tracker (hamburger) | | | | |
+| TC-PA-D06 | Intake panel opens on click | | | | |
+| TC-PA-D07 | Accept intake via panel | | | | |
+| TC-PA-D08 | Reject intake via panel | | | | |
+| TC-PA-D09 | Close panel without action | | | | |
+| TC-PA-D10 | Panel hidden on load | | | | |
+| TC-PA-S01 | Nav to Submit (header CTA) | | | | |
+| TC-PA-S02 | Submit a new issue | | | | |
+| TC-PA-S03 | Back from Submit (header) | | | | |
 | TC-PA-T01 | Issue table display | | | | |
 | TC-PA-T02 | Staleness colors | | | | |
 | TC-PA-T03 | Filter — All Open | | | | |
@@ -506,7 +842,7 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-PA-T11 | Combined filter + search | | | | |
 | TC-PA-T12 | Column sort | | | | |
 | TC-PA-T13 | Navigate to Detail | | | | |
-| TC-PA-T14 | Back to Dashboard | | | | |
+| TC-PA-T14 | Nav to Dashboard from Tracker | | | | |
 | TC-PA-I01 | Issue header display | | | | |
 | TC-PA-I02 | Update history timeline | | | | |
 | TC-PA-I03 | Multiple update entries | | | | |
@@ -514,7 +850,7 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-PA-I05 | Add update — status change | | | | |
 | TC-PA-I06 | Validation — empty notes | | | | |
 | TC-PA-I07 | Update reflects in SP | | | | |
-| TC-PA-I08 | Back to Tracker | | | | |
+| TC-PA-I08 | Back to Tracker (header) | | | | |
 | TC-FL-S01 | Staleness — manual run | | | | |
 | TC-FL-S02 | DaysSinceUpdate calc | | | | |
 | TC-FL-S03 | StalenessFlag accuracy | | | | |
@@ -528,6 +864,37 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-FL-P06 | KPIs update | | | | |
 | TC-E2E-01 | Full lifecycle test | | | | |
 | TC-E2E-02 | Staleness progression | | | | |
+| TC-E2E-03 | FunctionalGroup lifecycle | | | | |
+| TC-PA-G01 | Group Allocation loads | | | | |
+| TC-PA-G02 | Group card counts | | | | |
+| TC-PA-G03 | Closed excluded from groups | | | | |
+| TC-PA-G04 | Unassigned count | | | | |
+| TC-PA-G05 | Total active count | | | | |
+| TC-PA-G06 | Nav to Dashboard from Group | | | | |
+| TC-PA-K01 | Kanban Board loads | | | | |
+| TC-PA-K02 | Issues in correct columns | | | | |
+| TC-PA-K03 | Card content display | | | | |
+| TC-PA-K04 | Card tap to detail | | | | |
+| TC-PA-K05 | Column counts match | | | | |
+| TC-PA-K06 | Staleness colours on cards | | | | |
+| TC-PA-K07 | Closed excluded from Kanban | | | | |
+| TC-PA-K08 | Nav to Dashboard from Kanban | | | | |
+| TC-PA-NAV01 | Hamburger menu opens | | | | |
+| TC-PA-NAV02 | Current screen highlighted | | | | |
+| TC-PA-NAV03 | Navigate to each screen | | | | |
+| TC-PA-NAV04 | Outside tap closes dropdown | | | | |
+| TC-PA-NAV05 | Dropdown closes after nav | | | | |
+| TC-PA-NAV06 | Consistent across 6 screens | | | | |
+| TC-PA-T15 | FunctionalGroup column | | | | |
+| TC-PA-T16 | Search by group | | | | |
+| TC-PA-I09 | FunctionalGroup on detail | | | | |
+| TC-PA-S04 | FunctionalGroup dropdown | | | | |
+| TC-PA-S05 | FunctionalGroup saved | | | | |
+| TC-PA-D11 | FunctionalGroup acceptance | | | | |
+| TC-PA-D12 | Nav to Group Alloc (hamburger) | | | | |
+| TC-PA-D13 | Nav to Kanban (hamburger) | | | | |
+| TC-SP-05 | FunctionalGroup on Issues | | | | |
+| TC-SP-06 | FunctionalGroup on Intake | | | | |
 | TC-NEG-01 | Search no results | | | | |
 | TC-NEG-02 | Rapid updates | | | | |
 | TC-NEG-03 | Long text | | | | |
@@ -542,15 +909,17 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 
 | Priority | Count | Description |
 |----------|-------|-------------|
-| Critical | 1 | Full end-to-end lifecycle (TC-E2E-01) |
-| High | 25 | Core functionality — KPIs, filters, updates, flows, data integrity |
-| Medium | 13 | Secondary features — sorting, combined filters, concurrent access |
-| Low | 6 | Edge cases — empty search, long text, special chars, navigation |
-| **Total** | **45** | |
+| Critical | 2 | Full end-to-end lifecycle (TC-E2E-01, TC-E2E-03) |
+| High | 48 | Core functionality — KPIs, filters, updates, flows, data integrity, intake panel, submit screen, group allocation, kanban board, FunctionalGroup pipeline, hamburger navigation |
+| Medium | 21 | Secondary features — sorting, combined filters, concurrent access, panel states, card counts, staleness colours, nav dropdown close behaviour |
+| Low | 11 | Edge cases — empty search, long text, special chars, navigation, back buttons |
+| **Total** | **82** | |
 
 ### Recommended Test Order
-1. **SharePoint data layer** (TC-SP-01 to TC-SP-04) — confirm foundation
+1. **SharePoint data layer** (TC-SP-01 to TC-SP-06) — confirm foundation including FunctionalGroup
 2. **Power Automate flows** (TC-FL-S01 to TC-FL-S05, TC-FL-P01 to TC-FL-P06) — confirm automation
-3. **Power Apps screens** (TC-PA-D01 to TC-PA-I08) — confirm UI
-4. **End-to-end** (TC-E2E-01, TC-E2E-02) — confirm full lifecycle
-5. **Edge cases & auth** (TC-NEG-01 to TC-AUTH-02) — confirm robustness
+3. **Power Apps core screens** (TC-PA-D01 to TC-PA-I09, TC-PA-S01 to TC-PA-S05) — confirm UI including FunctionalGroup
+4. **Power Apps new screens** (TC-PA-G01 to TC-PA-G06, TC-PA-K01 to TC-PA-K08) — confirm Group Allocation and Kanban
+5. **Hamburger navigation** (TC-PA-NAV01 to TC-PA-NAV06) — confirm unified navigation menu across all screens
+6. **End-to-end** (TC-E2E-01, TC-E2E-02, TC-E2E-03) — confirm full lifecycle including FunctionalGroup flow
+7. **Edge cases & auth** (TC-NEG-01 to TC-AUTH-02) — confirm robustness
