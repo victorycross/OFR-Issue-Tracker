@@ -1,10 +1,10 @@
 # OFR Issue Tracker — Baseline & Version History
 
-**Current Version:** 1.5
-**Baseline Date:** February 21, 2026
+**Current Version:** 1.6
+**Baseline Date:** February 23, 2026
 **Platform:** Microsoft 365 (Power Apps + SharePoint Online + Power Automate)
-**App ID:** `0fbbc26c-ad71-476a-bcfc-edc0d7989533`
-**Tenant:** Bright Path Technology (papercuts.cafe)
+**App ID:** `[AUTO-GENERATED-APP-ID]`
+**Tenant:** Bright Path Technology ([TENANT-DOMAIN])
 
 ---
 
@@ -17,7 +17,7 @@ The OFR Issue Tracker is a fully operational M365-native canvas application mana
 | Layer | Component | Status |
 |-------|-----------|--------|
 | **Data** | 3 SharePoint lists (`OFR_Issues`, `OFR_UpdateHistory`, `OFR_IntakeQueue`) | Live |
-| **UI** | 6-screen Power Apps canvas app | Live |
+| **UI** | 7-screen Power Apps canvas app | Live |
 | **Automation** | 2 Power Automate cloud flows (Daily Staleness Calculator, Intake Promotion) | Live |
 
 ### Screens at Baseline
@@ -30,18 +30,33 @@ The OFR Issue Tracker is a fully operational M365-native canvas application mana
 | SubmitScreen | Intake submission form (Title, Owner, Priority, FunctionalGroup, Description) |
 | GroupAllocationScreen | 10 functional-group cards in 4-4-2 grid layout with open issue counts and colour coding |
 | KanbanScreen | 4-column board (New, Active, Escalated, Monitoring) with filterable galleries |
+| ClosedScreen | Searchable gallery of closed issues with drill-through to Issue Detail |
 
 ### Cross-Cutting Features
 
-- **Unified hamburger navigation** across all 6 screens (9 controls per screen, 54 total)
+- **Unified hamburger navigation** across all 7 screens (10 controls per screen, 70 total)
 - **Appkit4 design system** colour palette throughout (Primary Blue, Orange, Red)
 - **Staleness engine** with 3-tier thresholds (Current 0–7d, Aging 8–14d, Stale 15+d)
 - **10 functional groups** with dedicated allocation view
-- **Context variable pattern** (`varShowNav`, `varSelectedIssue`, `varShowPanel`)
+- **Context variable pattern** (`varShowNav`, `selectedItem`, `varShowPanel`, `varClosedSearch`)
 
 ---
 
 ## Version History
+
+### v1.6 — February 23, 2026
+
+**ClosedScreen & Dashboard KPI Drill-Through**
+
+- New **ClosedScreen** (7th screen) — searchable archive of all closed issues with gallery sorted by most recently closed
+- Search bar filters by ItemID, Title, Owner, or FunctionalGroup
+- Gallery row click navigates to IssueDetailScreen with full audit trail
+- **Dashboard KPI drill-through:** Clicking the Closed Items KPI card (count label, text label, background shape) navigates to ClosedScreen
+- **Hamburger navigation updated** across all 7 screens: added "Closed Items" as 6th nav item (dropdown height 264px, 10 controls per screen, 70 total)
+- **Accessibility:** AccessibleLabel set on Txt_Closed_Search, Gal_Closed_Issues, Shp_Closed_Items
+- App Checker: Formulas 47 (delegation warnings), Accessibility 43, Performance 0, Runtime 0
+- All documentation updated: SDD v2.1, User Guide v1.6, Test Plan v1.4 (103 cases), Demo Walkthrough Script v1.1
+- Migration package updated with ClosedScreen build instructions
 
 ### v1.5 — February 21, 2026
 
@@ -111,12 +126,13 @@ The OFR Issue Tracker is a fully operational M365-native canvas application mana
 
 | Document | Current Version | Last Updated |
 |----------|----------------|--------------|
-| System Design Document (SDD) | 1.1 | Feb 19, 2025 |
-| User Guide | 1.4 | Feb 21, 2026 |
-| Test Plan | 1.2 | Feb 21, 2026 |
+| System Design Document (SDD) | 2.1 | Feb 23, 2026 |
+| User Guide | 1.6 | Feb 23, 2026 |
+| Test Plan | 1.4 | Feb 23, 2026 |
 | Completion Guide | 1.0 | Feb 2026 |
 | Appkit4 Colour Map | 1.0 | Feb 2026 |
-| **This document (Baseline & Versioning)** | **1.5** | **Feb 21, 2026** |
+| Demo Walkthrough Script | 1.1 | Feb 23, 2026 |
+| **This document (Baseline & Versioning)** | **1.6** | **Feb 23, 2026** |
 
 ---
 
@@ -126,7 +142,7 @@ The OFR Issue Tracker is a fully operational M365-native canvas application mana
 |------------|---------|---------|
 | UI controls | `{Type}_{Screen}_{Purpose}` | `Btn_Tracker_HamburgerMenu` |
 | Type prefixes | `Btn_`, `Lbl_`, `Dd_`, `Txt_`, `Rect_`, `Gal_`, `Con_` | `Gal_Kanban_New` |
-| Screen shorthand | `Tracker`, `Detail`, `Submit`, `Group`, `Kanban`, `Dash` | `Rect_Dash_NavOverlay` |
+| Screen shorthand | `Tracker`, `Detail`, `Submit`, `Group`, `Kanban`, `Dash`, `Closed` | `Rect_Dash_NavOverlay` |
 | Context variables | `var{Purpose}` | `varShowNav`, `varSelectedIssue` |
 | SharePoint lists | `OFR_{ListName}` | `OFR_Issues` |
 | Item IDs | `OFR-NNN` | `OFR-12` |
@@ -138,10 +154,10 @@ The OFR Issue Tracker is a fully operational M365-native canvas application mana
 | Setting | Value |
 |---------|-------|
 | Tenant | Bright Path Technology |
-| Domain | papercutscafe |
-| Environment | papercuts.cafe (default) |
-| Power Apps App ID | `0fbbc26c-ad71-476a-bcfc-edc0d7989533` |
-| SharePoint Site | `https://papercutscafe.sharepoint.com/sites/OFRIssueTracker` |
-| Staleness Flow ID | `aefb8de0-35fe-4d5d-a629-ddd8502ee5aa` |
-| Intake Promotion Flow ID | `1c631640-113f-4602-805e-1d693582de8c` |
+| Domain | [TENANT] |
+| Environment | [TENANT-DOMAIN] (default) |
+| Power Apps App ID | `[AUTO-GENERATED-APP-ID]` |
+| SharePoint Site | `https://[TENANT].sharepoint.com/sites/OFRIssueTracker` |
+| Staleness Flow ID | `[AUTO-GENERATED-FLOW-ID-STALENESS]` |
+| Intake Promotion Flow ID | `[AUTO-GENERATED-FLOW-ID-INTAKE]` |
 | Licence | M365 Business Standard + Power Apps Developer + Power Automate Free |

@@ -1,7 +1,7 @@
 # OFR Issue Tracker — System Design Document (SDD)
 
-**Version:** 1.1
-**Date:** February 19, 2025
+**Version:** 2.1
+**Date:** February 23, 2026
 **Classification:** Internal
 **Author:** OFR Technology Team
 
@@ -53,7 +53,7 @@ The OFR Issue Tracker replaces a previous React/Vite single-page application (SP
 
 | Principle | Implementation |
 |-----------|----------------|
-| **Zero infrastructure** | No Azure subscriptions, custom domains, SSL certificates, or CI/CD pipelines |
+| **Minimal infrastructure** | Phase 1 requires zero infrastructure beyond M365. Phase 2 adds a single Azure Function (Consumption plan, ~$0.10/month) for deck generation. |
 | **Native authentication** | Entra ID SSO via Power Platform — no custom MSAL code |
 | **Data stays in M365** | All data stored in SharePoint Online lists within the tenant |
 | **Low-code maintainability** | Power Apps canvas app and Power Automate flows — editable by non-developers |
@@ -66,6 +66,7 @@ The OFR Issue Tracker replaces a previous React/Vite single-page application (SP
 | SharePoint Online | M365 Business Standard (included) |
 | Power Apps | Power Apps Developer Plan (free) or Power Apps per-user |
 | Power Automate | Power Automate Free (included with M365) |
+| Azure Function *(Phase 2)* | Azure Subscription — Consumption plan (~free for this workload: <$0.10/month) |
 
 ---
 
@@ -73,11 +74,12 @@ The OFR Issue Tracker replaces a previous React/Vite single-page application (SP
 
 ### 2.1 High-Level Description
 
-The OFR Issue Tracker is a three-tier application built entirely within the Microsoft 365 ecosystem:
+The OFR Issue Tracker is a four-tier application built primarily within the Microsoft 365 ecosystem:
 
 1. **Data Layer** — SharePoint Online lists store all issue data, update history, and intake queue records
-2. **UI Layer** — A Power Apps canvas app provides the user interface with six screens (Dashboard, Tracker, Issue Detail, Submit, Group Allocation, Kanban) and two inline side panels
-3. **Automation Layer** — Power Automate cloud flows handle scheduled staleness calculations and triggered intake promotion
+2. **UI Layer** — A Power Apps canvas app provides the user interface with seven screens (Dashboard, Tracker, Issue Detail, Submit, Group Allocation, Kanban, Closed) and two inline side panels
+3. **Automation Layer** — Power Automate cloud flows handle scheduled staleness calculations, triggered intake promotion, and deck generation orchestration
+4. **Backend Layer** *(Phase 2, optional)* — An Azure Function (Python 3.11, Consumption plan) provides automated PPTX deck generation, fetching data from SharePoint via the Graph API and uploading generated reports
 
 ### 2.2 User Roles
 
@@ -137,6 +139,8 @@ The OFR Issue Tracker is a three-tier application built entirely within the Micr
 | Power Apps Canvas App | Power Apps | App ID: `0fbbc26c-ad71-476a-bcfc-edc0d7989533` |
 | Daily Staleness Calculator | Power Automate Cloud Flow | Flow ID: `aefb8de0-35fe-4d5d-a629-ddd8502ee5aa` |
 | Intake Promotion | Power Automate Cloud Flow | Flow ID: `1c631640-113f-4602-805e-1d693582de8c` |
+| OFR Generate Issue Deck | Power Automate Cloud Flow | TBD (calls Azure Function) |
+| Issue Deck Azure Function | Azure Function (Python 3.11) | `func-ofr-issuetracker` (Consumption plan) |
 
 ### 3.2 Technology Stack
 
@@ -145,8 +149,9 @@ The OFR Issue Tracker is a three-tier application built entirely within the Micr
 | Data | SharePoint Online | Current (M365) |
 | UI | Power Apps Canvas App | Current (Modern controls enabled) |
 | Automation | Power Automate Cloud Flows | Current (New Designer v3) |
+| Backend | Azure Function (Python) | 3.11, Consumption plan |
 | Authentication | Microsoft Entra ID | SSO via Power Platform |
-| Hosting | Power Platform / SharePoint | M365 multi-tenant |
+| Hosting | Power Platform / SharePoint / Azure | M365 multi-tenant + Azure Consumption |
 
 ### 3.3 Data Flow Diagram
 
@@ -199,6 +204,21 @@ View group allocation ───────▶ Filter() +               OFR_Issu
 View kanban board ───────────▶ Filter() ×4              OFR_Issues (read)
                                (New, Active,            (one gallery per status)
                                 Escalated, Monitoring)
+
+View closed issues ─────────▶ Filter() +               OFR_Issues (read)
+                               Search()                 (Status = "Closed")
+
+Generate Issue Deck ────────▶ Call PA flow ─────────────────────────────────────▶ OFR Generate Issue Deck
+                                                                                   │ HTTP POST
+                                                                                   ▼
+                                                                             Azure Function
+                                                                               │ 1. Graph API → OFR_Issues
+                                                                               │    + OFR_UpdateHistory
+                                                                               │ 2. generate_pptx_bytes()
+                                                                               │ 3. Upload to SharePoint
+                                                          Shared Documents/ ◄──┘
+                                                           Generated Reports/
+                               ◄─────────────────────────────────────────────────── {status, filename, url}
 ```
 
 ---
@@ -264,6 +284,7 @@ View kanban board ───────────▶ Filter() ×4             
 | 5 | DateSubmitted | DateSubmitted | Date and time | No | When the intake item was created. |
 | 6 | TriageStatus | TriageStatus | Choice | No | **Values:** Pending, Promoted, Dismissed, Accepted, Rejected. Default: Pending. Changed to "Promoted" by intake promotion flow, "Dismissed" by Dashboard dismiss button, "Accepted" by Intake Review panel accept button, or "Rejected" by Intake Review panel reject button. |
 | 7 | FunctionalGroup | FunctionalGroup | Choice | No | **Values:** Risk Management Office, Engagement Risk, Client Risk and KYC, Technology Risk & AI Trust, National Security, OGC General Counsel, OGC Privacy, OGC Contracts, Internal Audit, Independence. Flows through to OFR_Issues on promotion/acceptance. |
+| 8 | RelatedOFRIssue | RelatedOFRIssue | Single line of text | No | Optional reference to an existing OFR issue ID (e.g. OFR-1). Links the intake item to a previously raised issue. |
 
 **Retention:** Promoted and dismissed items remain in the list for audit purposes. Only items with TriageStatus = "Pending" are displayed in the Power Apps intake gallery.
 
@@ -281,6 +302,7 @@ View kanban board ───────────▶ Filter() ×4             
 │ DateSubmitted          │         │ Status                 │
 │ TriageStatus           │         │ DateRaised             │
 │ FunctionalGroup        │         │ FunctionalGroup        │
+│ RelatedOFRIssue        │         │                        │
 └────────────────────────┘         │ LastUpdated            │
                                    │ NextAction             │
                                    │ DaysSinceUpdate        │
@@ -324,7 +346,7 @@ View kanban board ───────────▶ Filter() ×4             
 |----------|-------|
 | App Type | Canvas App |
 | App ID | `0fbbc26c-ad71-476a-bcfc-edc0d7989533` |
-| Screen Count | 6 (DashboardScreen, TrackerScreen, IssueDetailScreen, SubmitScreen, GroupAllocationScreen, KanbanScreen) |
+| Screen Count | 7 (DashboardScreen, TrackerScreen, IssueDetailScreen, SubmitScreen, GroupAllocationScreen, KanbanScreen, ClosedScreen) |
 | Data Sources | OFR_Issues, OFR_UpdateHistory, OFR_IntakeQueue (SharePoint connectors) |
 | Modern Controls | Enabled |
 | Theme | Appkit4 (Blue, Orange, Red, Black) — Primary Blue (#415385), Primary Orange (#D04A02), Primary Red (#E0301E), Neutral Black (#2D2D2D) |
@@ -344,12 +366,13 @@ All buttons and navigation labels across all screens use these explicit RGBA val
 | Variable | Type | Scope | Purpose |
 |----------|------|-------|---------|
 | `varShowNav` | Boolean | Per-screen (reset in OnVisible) | Controls visibility of the hamburger dropdown navigation panel. Toggled by the hamburger button; reset to `false` on each screen's `OnVisible` and when a navigation item is selected. |
+| `varClosedSearch` | Text | ClosedScreen only (reset in OnVisible) | Search filter text for the closed issues gallery on ClosedScreen. Reset to `""` on screen entry. |
 
 ### 5.2 Screen: DashboardScreen
 
 **Purpose:** Landing page with KPI overview, navigation hub, and intake triage.
 
-**Header Bar:** Orange bar (`RGBA(208,74,2,1)`) with hamburger menu button (☰) on the left, "One Firm Risk Tracker" title centre-left, and "+ Submit New Issue" CTA button on the right. The hamburger button toggles a dropdown navigation panel (`varShowNav`) listing all five navigation destinations (Dashboard, Issue Tracker, Group Allocation, Kanban Board, Submit New Issue). A transparent full-screen overlay behind the panel closes it on outside tap. The current screen (Dashboard) is highlighted in the dropdown.
+**Header Bar:** Orange bar (`RGBA(208,74,2,1)`) with hamburger menu button (☰) on the left, "One Firm Risk Tracker" title centre-left, and "+ Submit New Issue" CTA button on the right. The hamburger button toggles a dropdown navigation panel (`varShowNav`) listing all six navigation destinations (Dashboard, Issue Tracker, Group Allocation, Kanban Board, Closed Items, Submit New Issue). A transparent full-screen overlay behind the panel closes it on outside tap. The current screen (Dashboard) is highlighted in the dropdown.
 
 **OnVisible:** `UpdateContext({varShowNav: false})`
 
@@ -360,7 +383,7 @@ All buttons and navigation labels across all screens use these explicit RGBA val
 | KPI - High Priority | Label | OFR_Issues | `CountRows(Filter(OFR_Issues, Priority = "High", Status <> "Closed"))` |
 | KPI - Medium | Label | OFR_Issues | `CountRows(Filter(OFR_Issues, Priority = "Medium", Status <> "Closed"))` |
 | KPI - Low | Label | OFR_Issues | `CountRows(Filter(OFR_Issues, Priority = "Low", Status <> "Closed"))` |
-| KPI - Closed Items | Label | OFR_Issues | `CountRows(Filter(OFR_Issues, Status.Value = "Closed"))` — pink/purple card at bottom |
+| KPI - Closed Items | Label | OFR_Issues | `CountRows(Filter(OFR_Issues, Status.Value = "Closed"))` — pink/purple card at bottom. OnSelect: `Navigate(ClosedScreen)` |
 | Intake Gallery | Gallery | OFR_IntakeQueue | `Filter(OFR_IntakeQueue, TriageStatus = "Pending")` sorted by Priority, DateSubmitted |
 | Promote Button | Button | — | Calls OFR Intake Promotion flow via `OFRIntakePromotion.Run(ThisItem.ID)` |
 | Dismiss Button | Button | OFR_IntakeQueue | `Patch(OFR_IntakeQueue, ThisItem, {TriageStatus: "Dismissed"})` |
@@ -379,11 +402,12 @@ All buttons and navigation labels across all screens use these explicit RGBA val
 | Hamburger Button | Button | — | Text: `Char(9776)`. OnSelect: `UpdateContext({varShowNav: !varShowNav})` |
 | + Submit New Issue CTA | Button | — | `Navigate(SubmitScreen)` — always visible in header |
 | Nav Overlay | Rectangle | — | Transparent full-screen rectangle. Visible: `varShowNav`. OnSelect: `UpdateContext({varShowNav: false})` |
-| Nav Dropdown Panel | Rectangle | — | White dropdown (X=10, Y=55, W=250, H=220). Visible: `varShowNav`. |
+| Nav Dropdown Panel | Rectangle | — | White dropdown (X=10, Y=55, W=250, H=264). Visible: `varShowNav`. |
 | Nav — Dashboard | Button | — | Current screen — highlighted. `UpdateContext({varShowNav: false})` |
 | Nav — Issue Tracker | Button | — | `UpdateContext({varShowNav: false}); Navigate(TrackerScreen)` |
 | Nav — Group Allocation | Button | — | `UpdateContext({varShowNav: false}); Navigate(GroupAllocationScreen)` |
 | Nav — Kanban Board | Button | — | `UpdateContext({varShowNav: false}); Navigate(KanbanScreen)` |
+| Nav — Closed Items | Button | — | `UpdateContext({varShowNav: false}); Navigate(ClosedScreen)` |
 | Nav — Submit New Issue | Button | — | `UpdateContext({varShowNav: false}); Navigate(SubmitScreen)` |
 
 **Accept Button OnSelect:**
@@ -427,7 +451,7 @@ Notify("Issue accepted into tracker", NotificationType.Success)
 | FunctionalGroup Dropdown | Dropdown | — | Items: `Choices(OFR_Issues.FunctionalGroup)`. Default: selected issue's FunctionalGroup. Allows reassignment from the quick-update panel. |
 | Save Update Button | Button | OFR_UpdateHistory, OFR_Issues | Quick-saves an update note, optional status change, and optional FunctionalGroup reassignment from the panel |
 | View Full Detail Button | Button | — | `Navigate(IssueDetailScreen, ScreenTransition.None, {varSelectedIssue: selectedIssue})` |
-| **Hamburger Navigation** | | | Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = Issue Tracker (highlighted). |
+| **Hamburger Navigation** | | | Same 10 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 6 nav items). Current screen = Issue Tracker (highlighted). |
 
 **Gallery Items Formula (conceptual):**
 ```
@@ -469,7 +493,7 @@ SortByColumns(
 | FunctionalGroup Dropdown | Dropdown | — | Items: `Choices(OFR_Issues.FunctionalGroup)`. Default: `varSelectedIssue.FunctionalGroup`. Allows reassignment of functional group ownership. |
 | Save Update Button | Button | OFR_UpdateHistory, OFR_Issues | See save logic below |
 | Back Button | Button | — | `Navigate(TrackerScreen)` — positioned between hamburger and title in header |
-| **Hamburger Navigation** | | | Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = none highlighted (detail view). |
+| **Hamburger Navigation** | | | Same 10 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 6 nav items). Current screen = none highlighted (detail view). |
 
 **Save Update Logic (conceptual):**
 ```
@@ -512,15 +536,16 @@ Reset(ddGroup);
 | Title Input | TextInput | — | Required. Label: "Topic \| Issue \| Problem". Placeholder: "Enter issue title..." |
 | Description Input | TextInput | — | Required. Multi-line issue description. |
 | Priority Dropdown | Dropdown | — | Items: "High", "Medium", "Low" |
-| FunctionalGroup Dropdown | Dropdown | — | Label: "Functional". Items: 10 functional groups (Risk Management Office, Engagement Risk, Client Risk and KYC, Technology Risk & AI Trust, National Security, OGC General Counsel, OGC Privacy, OGC Contracts, Internal Audit, Independence) |
+| FunctionalGroup Dropdown (`Dd_Submit_FuncGroup`) | Dropdown | — | Label: "Functional". Items: 10 functional groups (Risk Management Office, Engagement Risk, Client Risk and KYC, Technology Risk & AI Trust, National Security, OGC General Counsel, OGC Privacy, OGC Contracts, Internal Audit, Independence) |
+| Related OFR Issue (`Txt_Submit_PrevRef`) | TextInput | — | Optional. HintText: "e.g. OFR-1". Links to an existing OFR issue ID. |
 | Submitted By | Label | — | Displays `User().FullName` (read-only) |
-| Submit Button | Button | OFR_IntakeQueue | `Patch(OFR_IntakeQueue, Defaults(OFR_IntakeQueue), {Title: txtTitle.Text, Description: txtDescription.Text, Priority: ddPriority.Selected, FunctionalGroup: ddNewGroup.Selected, TriageStatus: {Value: "Pending"}, DateSubmitted: Now()})` |
+| Submit Button | Button | OFR_IntakeQueue | `Patch(OFR_IntakeQueue, Defaults(OFR_IntakeQueue), {Title: txtTitle.Text, Description: txtDescription.Text, Priority: ddPriority.Selected, FunctionalGroup: {Value: Dd_Submit_FuncGroup.Selected.Value}, RelatedOFRIssue: Txt_Submit_PrevRef.Text, TriageStatus: {Value: "Pending"}, DateSubmitted: Now()})` |
 | Back Button | Button | — | `Navigate(DashboardScreen)` — positioned between hamburger and title in header |
-| **Hamburger Navigation** | | | Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = Submit New Issue (highlighted). |
+| **Hamburger Navigation** | | | Same 10 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 6 nav items). Current screen = Submit New Issue (highlighted). |
 
 ### 5.6 Navigation Map
 
-**Unified Header Pattern (all 6 screens):**
+**Unified Header Pattern (all 7 screens):**
 
 All screens share an identical hamburger navigation menu. The header bar is orange (`RGBA(208,74,2,1)`, 55px height, full width) with:
 - **Left:** Hamburger button (☰) that toggles a dropdown navigation panel
@@ -528,7 +553,7 @@ All screens share an identical hamburger navigation menu. The header bar is oran
 - **Right:** "+ Submit New Issue" CTA button (white text, always visible)
 - **IssueDetailScreen and SubmitScreen only:** A "< Back" button between the hamburger and title for quick return to the parent screen
 
-The dropdown panel (X=10, Y=55, W=250, H=220) lists five navigation destinations: Dashboard, Issue Tracker, Group Allocation, Kanban Board, Submit New Issue. The current screen is highlighted (blue text, light blue-grey fill). A transparent full-screen overlay behind the panel closes it on outside tap. The context variable `varShowNav` controls dropdown visibility and is reset to `false` in each screen's `OnVisible`.
+The dropdown panel (X=10, Y=55, W=250, H=264) lists six navigation destinations: Dashboard, Issue Tracker, Group Allocation, Kanban Board, Closed Items, Submit New Issue. The current screen is highlighted (blue text, light blue-grey fill). A transparent full-screen overlay behind the panel closes it on outside tap. The context variable `varShowNav` controls dropdown visibility and is reset to `false` in each screen's `OnVisible`.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -537,15 +562,17 @@ The dropdown panel (X=10, Y=55, W=250, H=220) lists five navigation destinations
 │       │              ├── Issue Tracker ──────▶ TrackerScreen         │
 │       │              ├── Group Allocation ───▶ GroupAllocationScreen  │
 │       │              ├── Kanban Board ───────▶ KanbanScreen          │
+│       │              ├── Closed Items ───────▶ ClosedScreen          │
 │       │              └── Submit New Issue ───▶ SubmitScreen           │
 │       │                                                              │
-│  Available on ALL 6 screens:                                         │
+│  Available on ALL 7 screens:                                         │
 │       ├── DashboardScreen ("One Firm Risk Tracker")                  │
 │       ├── TrackerScreen ("Issue Tracker")                            │
 │       ├── IssueDetailScreen ("Issue Detail") + [< Tracker] back btn  │
 │       ├── SubmitScreen ("Submit New Issue") + [< Dashboard] back btn │
 │       ├── GroupAllocationScreen ("Group Allocation")                 │
-│       └── KanbanScreen ("Kanban Board")                              │
+│       ├── KanbanScreen ("Kanban Board")                              │
+│       └── ClosedScreen ("Closed Items")                              │
 └──────────────────────────────────────────────────────────────────────┘
 
 Additional Navigation (non-menu):
@@ -553,7 +580,10 @@ Additional Navigation (non-menu):
     └── [Row tap] ──────────▶ IssueDetailScreen (varSelectedIssue)
   KanbanScreen:
     └── [Card tap] ─────────▶ IssueDetailScreen (varSelectedIssue)
+  ClosedScreen:
+    └── [Row tap] ──────────▶ IssueDetailScreen (selectedItem)
   DashboardScreen:
+    ├── [Closed Items KPI] ─▶ ClosedScreen
     ├── [Intake item tap] ──▶ Opens Intake Review panel (same screen)
     │                          ├── [Accept] ──▶ Creates issue + closes panel
     │                          ├── [Reject] ──▶ Marks rejected + closes panel
@@ -574,7 +604,7 @@ Additional Navigation (non-menu):
 |-----------|------|-------------|-----------|
 | Group Cards (×10) | Rectangle + Labels | OFR_Issues | 4-4-2 card grid. Each card displays the group name label above a colour-coded count rectangle. |
 | Card Count Formula | Label | OFR_Issues | `CountRows(Filter(OFR_Issues, FunctionalGroup.Value = "[GroupName]", Status.Value <> "Closed"))` |
-| **Hamburger Navigation** | | | Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = Group Allocation (highlighted). |
+| **Hamburger Navigation** | | | Same 10 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 6 nav items). Current screen = Group Allocation (highlighted). |
 
 **Card Grid Layout (4-4-2):**
 
@@ -623,9 +653,53 @@ Each card has a group name label positioned above a rounded rectangle displaying
 
 **Note:** Closed issues are excluded from all four galleries. The Kanban view focuses on open/active workflow stages only.
 
-**Hamburger Navigation:** Same 9 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 5 nav items). Current screen = Kanban Board (highlighted).
+**Hamburger Navigation:** Same 10 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 6 nav items). Current screen = Kanban Board (highlighted).
 
-**Approximate control count:** 37 (4 galleries × 7 template controls + 4 column headers + header bar + title + 9 hamburger navigation controls).
+**Approximate control count:** 38 (4 galleries × 7 template controls + 4 column headers + header bar + title + 10 hamburger navigation controls).
+
+### 5.9 Screen: ClosedScreen
+
+**Purpose:** Dedicated screen showing all closed issues in a searchable gallery with drill-through to IssueDetailScreen. Provides a focused view of resolved issues, accessible from the Dashboard Closed Items KPI card and the hamburger navigation menu.
+
+**Header Bar:** Orange bar with hamburger menu (☰), "Closed Items" title, and "+ Submit New Issue" CTA. Same unified navigation pattern as all screens.
+
+**OnVisible:** `UpdateContext({varShowNav: false, varClosedSearch: ""})`
+
+| Component | Type | Data Source | Key Logic |
+|-----------|------|-------------|-----------|
+| Search Box (`Txt_Closed_Search`) | TextInput | — | Filters the gallery by Title, Owner, or ItemID. Bound to `varClosedSearch` context variable via `OnChange: UpdateContext({varClosedSearch: Self.Text})`. HintText: "Search closed issues..." |
+| Closed Issues Gallery (`Gal_Closed_Issues`) | Vertical Gallery | OFR_Issues | Displays all closed issues filtered by search term, sorted by LastUpdated descending (see formula below) |
+| Gallery Row — Title Line | Labels | OFR_Issues | `ThisItem.ItemID & " | " & ThisItem.Title & " | " & ThisItem.Owner` |
+| Gallery Row — Subtitle | Label | OFR_Issues | `ThisItem.FunctionalGroup.Value & " | Closed " & Text(ThisItem.LastUpdated, "mm/dd/yyyy")` |
+| Gallery OnSelect | — | — | `Navigate(IssueDetailScreen, ScreenTransition.Fade, {selectedItem: ThisItem})` |
+| **Hamburger Navigation** | | | Same 10 controls as DashboardScreen (hamburger, CTA, overlay, dropdown, 6 nav items). Current screen = Closed Items (highlighted). |
+
+**Gallery Items Formula:**
+```
+SortByColumns(
+  Filter(
+    OFR_Issues,
+    Status.Value = "Closed",
+    Or(
+      IsBlank(varClosedSearch),
+      varClosedSearch in Title,
+      varClosedSearch in Owner,
+      varClosedSearch in ItemID
+    )
+  ),
+  "LastUpdated",
+  SortOrder.Descending
+)
+```
+
+**Context Variables:**
+
+| Variable | Type | Purpose |
+|----------|------|---------|
+| `varClosedSearch` | Text | Search filter for the closed issues gallery. Reset to `""` on screen entry via `OnVisible`. |
+| `varShowNav` | Boolean | Controls hamburger navigation dropdown visibility. Reset to `false` on screen entry. |
+
+**Approximate control count:** 14 (search box + gallery + 2 row template labels + header bar + title + 10 hamburger navigation controls).
 
 ---
 
@@ -763,6 +837,53 @@ The ItemID is generated using `concat('OFR-', string(ID))` where `ID` is the Sha
 - The numbering may not be perfectly sequential if intake items are deleted
 - The prefix "OFR-" provides namespace identification
 
+### 6.3 Flow: OFR Generate Issue Deck *(Phase 2 — Optional)*
+
+| Property | Value |
+|----------|-------|
+| Flow ID | `718dd979-d1e9-497a-b9ec-fa49152c7963` |
+| Type | Instant cloud flow |
+| Trigger | Power Apps V2 (no inputs) |
+| Output Parameters | ResultStatus (Text), FileName (Text), FileURL (Text) |
+| Connection | HTTP (built-in) |
+| Dependency | Azure Function `func-ofr-issuetracker` deployed and configured |
+
+**Flow Steps:**
+
+```
+1. Trigger: When Power Apps calls a flow (V2)
+     │  No input parameters
+     │
+2. HTTP: POST to Azure Function
+     │  URI: https://[AZURE-FUNCTION-APP].azurewebsites.net/api/generate-deck
+     │  Headers: x-functions-key = [FUNCTION-KEY], Content-Type = application/json
+     │  Body: (empty)
+     │
+3. Parse JSON: Parse HTTP response body
+     │  Schema: { status: string, filename: string, url: string, issue_count: integer, generated_at: string }
+     │
+4. Condition: status equals "success"
+     │
+     ├─ Yes: Respond to a Power App or flow
+     │        ResultStatus = status, FileName = filename, FileURL = url
+     │
+     └─ No: Respond to a Power App or flow
+              ResultStatus = "error", FileName = "", FileURL = ""
+```
+
+**Azure Function Pipeline (called by this flow):**
+
+1. Authenticates with Microsoft Graph API using client credentials (app registration)
+2. Fetches all items from `OFR_Issues` and `OFR_UpdateHistory` SharePoint lists
+3. Generates a ~51-slide PPTX deck in memory (python-pptx) with:
+   - Cover, Executive Summary, KPI Dashboard, Staleness Overview
+   - Priority Summary tables (High/Medium/Low, paginated at 8 rows)
+   - Per-group section dividers + issue tables (10 functional groups, paginated at 7 rows)
+   - Individual Issue Detail slides with colour-coded badges and update history timelines
+   - Items Requiring Attention table + Closing slide
+4. Uploads the PPTX to `Shared Documents/Generated Reports/` in SharePoint
+5. Returns JSON with status, filename, URL, and issue count
+
 ---
 
 ## 7. Security & Access Control
@@ -804,8 +925,10 @@ The ItemID is generated using `concat('OFR-', string(ID))` where `ID` is the Sha
 | Integration | Type | Direction | Details |
 |-------------|------|-----------|---------|
 | Power Apps ↔ SharePoint | Data connector | Bidirectional | Standard SharePoint connector. Read/write to all three lists. |
-| Power Apps → Power Automate | Flow trigger | Outbound | Power Apps V2 trigger calls Intake Promotion flow with IntakeItemID parameter. |
+| Power Apps → Power Automate | Flow trigger | Outbound | Power Apps V2 trigger calls Intake Promotion flow (IntakeItemID) and Issue Deck Generator flow (no params). |
 | Power Automate → SharePoint | Data connector | Read/Write | Staleness flow reads and updates OFR_Issues. Promotion flow reads/writes all three lists. |
+| Power Automate → Azure Function *(Phase 2)* | HTTP POST | Outbound | Issue Deck Generator flow calls Azure Function endpoint with function key auth. |
+| Azure Function → Microsoft Graph *(Phase 2)* | REST API | Outbound | App-only auth (client credentials) to read SharePoint lists and upload PPTX files. |
 | Microsoft Teams | Tab embed | Display | Power App pinned as a Teams tab for channel access (optional deployment). |
 
 ### 8.2 Future Integration Opportunities
@@ -870,13 +993,21 @@ The ItemID is generated using `concat('OFR-', string(ID))` where `ID` is the Sha
 
 ### 10.2 Deployment Steps (New Environment)
 
+**Phase 1 — M365 Core (required):**
+
 1. **Create SharePoint site** — Team site named "OFR Issue Tracker"
 2. **Create 3 SharePoint lists** — OFR_Issues, OFR_UpdateHistory, OFR_IntakeQueue with schemas per Section 4
-3. **Import or recreate Power Apps** — Canvas app with 6 screens per Section 5
-4. **Create Power Automate flows** — Two flows per Section 6
+3. **Import or recreate Power Apps** — Canvas app with 7 screens per Section 5
+4. **Create Power Automate flows** — Two core flows per Sections 6.1 and 6.2
 5. **Connect flows to app** — Wire Intake Promotion flow to Dashboard Promote button
 6. **Share app** — Share with target M365 group
 7. **Optional: Pin to Teams** — Add as Teams channel tab
+
+**Phase 2 — Azure Function & Deck Generation (optional):**
+
+8. **Deploy Azure Function** — Create Azure resources, app registration, deploy Python function code (see migration package: `06-Environment-Config/Azure-Function-Setup.md`)
+9. **Create Issue Deck Generator flow** — Power Automate flow per Section 6.3 (see migration package: `02-PowerAutomate/OFR-Issue-Deck-Generator.md`)
+10. **Update Power Apps button** — Wire `Btn_Dash_GenerateDeck` to the Issue Deck Generator flow
 
 ### 10.3 Rollback Strategy
 
@@ -885,7 +1016,8 @@ The ItemID is generated using `concat('OFR-', string(ID))` where `ID` is the Sha
 | Bad Power Apps update | Restore previous version from Power Apps version history |
 | Bad flow change | Restore previous version from Power Automate flow history |
 | Data issue | Restore items from SharePoint recycle bin (93-day retention) |
-| Complete rollback | Remove app sharing, turn off flows. Data remains in SharePoint. |
+| Azure Function issue *(Phase 2)* | Redeploy from source code; rotate client secret if compromised |
+| Complete rollback | Remove app sharing, turn off flows. Data remains in SharePoint. Optionally delete Azure resource group. |
 
 ---
 
@@ -930,6 +1062,7 @@ The ItemID is generated using `concat('OFR-', string(ID))` where `ID` is the Sha
 | OFR_IntakeQueue | https://papercutscafe.sharepoint.com/sites/OFRIssueTracker/Lists/OFR_IntakeQueue |
 | Power Apps Studio | https://make.powerapps.com |
 | Power Automate | https://make.powerautomate.com |
+| Azure Function Endpoint *(Phase 2)* | https://func-ofr-issuetracker.azurewebsites.net/api/generate-deck |
 
 ### Appendix B: Component IDs
 
@@ -939,6 +1072,8 @@ The ItemID is generated using `concat('OFR-', string(ID))` where `ID` is the Sha
 | OFR_Issues List GUID | `a70da6a6-1f0a-4fd3-bb4e-cf7847e18a99` |
 | Staleness Calculator Flow | `aefb8de0-35fe-4d5d-a629-ddd8502ee5aa` |
 | Intake Promotion Flow | `1c631640-113f-4602-805e-1d693582de8c` |
+| Issue Deck Generator Flow *(Phase 2)* | `718dd979-d1e9-497a-b9ec-fa49152c7963` |
+| App Registration Client ID *(Phase 2)* | `7570df18-68fe-47be-9305-7f6476909ebb` |
 
 ### Appendix C: Related Documents
 

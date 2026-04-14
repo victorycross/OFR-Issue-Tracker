@@ -69,6 +69,13 @@
       ],
       "defaultValue": null,
       "description": "Functional group allocation for the submitted issue. Flows through to OFR_Issues on promotion/acceptance."
+    },
+    {
+      "name": "RelatedOFRIssue",
+      "internalName": "RelatedOFRIssue",
+      "type": "Single line of text",
+      "required": false,
+      "description": "Optional reference to an existing OFR issue ID (e.g. OFR-1). Links the intake item to a previously raised issue."
     }
   ],
   "notes": "Only items with TriageStatus = 'Pending' are displayed in the Power Apps intake gallery."

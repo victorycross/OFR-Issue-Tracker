@@ -1,0 +1,315 @@
+{
+  "generated_at": "2026-02-22T10:00:00Z",
+  "report_title": "OFR Issue Tracker - Weekly Risk Report",
+  "report_subtitle": "Week of February 22, 2026",
+  "issues": [
+    {
+      "ItemID": "OFR-001",
+      "Title": "Cross-border data transfer compliance gap",
+      "Owner": "Jane Smith",
+      "Priority": "High",
+      "Status": "Active",
+      "FunctionalGroup": "Technology Risk & AI Trust",
+      "DateRaised": "2026-01-15",
+      "LastUpdated": "2026-02-18",
+      "DaysSinceUpdate": 4,
+      "StalenessFlag": "Current",
+      "NextAction": "Review with legal team by Feb 28",
+      "Updates": [
+        {"Date": "2026-02-18", "Status": "Active", "Notes": "Legal review scheduled for Feb 28. EU counsel confirmed scope of GDPR Article 46 analysis.", "UpdatedBy": "Jane Smith"},
+        {"Date": "2026-02-05", "Status": "Active", "Notes": "Identified three additional cross-border data flows requiring assessment.", "UpdatedBy": "Jane Smith"},
+        {"Date": "2026-01-15", "Status": "New", "Notes": "Raised following internal audit of EU-US data transfer mechanisms.", "UpdatedBy": "Jane Smith"}
+      ]
+    },
+    {
+      "ItemID": "OFR-002",
+      "Title": "Third-party vendor risk assessment overdue",
+      "Owner": "Michael Chen",
+      "Priority": "High",
+      "Status": "Escalated",
+      "FunctionalGroup": "Engagement Risk",
+      "DateRaised": "2026-01-08",
+      "LastUpdated": "2026-01-25",
+      "DaysSinceUpdate": 28,
+      "StalenessFlag": "Stale",
+      "NextAction": "Escalate to partner review board",
+      "Updates": [
+        {"Date": "2026-01-25", "Status": "Escalated", "Notes": "Escalated to partner level. Vendor has not responded to two assessment requests.", "UpdatedBy": "Michael Chen"},
+        {"Date": "2026-01-15", "Status": "Active", "Notes": "Second request sent to vendor. Response deadline set for Jan 22.", "UpdatedBy": "Michael Chen"},
+        {"Date": "2026-01-08", "Status": "New", "Notes": "Annual risk assessment for critical Tier 1 vendor now 30 days overdue.", "UpdatedBy": "Michael Chen"}
+      ]
+    },
+    {
+      "ItemID": "OFR-003",
+      "Title": "KYC refresh cycle for high-risk clients",
+      "Owner": "Sarah Johnson",
+      "Priority": "Medium",
+      "Status": "Active",
+      "FunctionalGroup": "Client Risk and KYC",
+      "DateRaised": "2026-01-20",
+      "LastUpdated": "2026-02-15",
+      "DaysSinceUpdate": 7,
+      "StalenessFlag": "Current",
+      "NextAction": "Complete batch 3 of client reviews",
+      "Updates": [
+        {"Date": "2026-02-15", "Status": "Active", "Notes": "Batch 2 complete (12 clients). Batch 3 of 8 high-risk clients in progress.", "UpdatedBy": "Sarah Johnson"},
+        {"Date": "2026-01-28", "Status": "Active", "Notes": "Batch 1 complete. Began batch 2 covering financial services clients.", "UpdatedBy": "Sarah Johnson"}
+      ]
+    },
+    {
+      "ItemID": "OFR-004",
+      "Title": "AI model governance framework gaps",
+      "Owner": "David Park",
+      "Priority": "High",
+      "Status": "Active",
+      "FunctionalGroup": "Technology Risk & AI Trust",
+      "DateRaised": "2026-01-10",
+      "LastUpdated": "2026-02-05",
+      "DaysSinceUpdate": 17,
+      "StalenessFlag": "Stale",
+      "NextAction": "Draft framework for committee review",
+      "Updates": [
+        {"Date": "2026-02-05", "Status": "Active", "Notes": "Draft framework 60% complete. Awaiting input from data science team on model risk classification.", "UpdatedBy": "David Park"},
+        {"Date": "2026-01-20", "Status": "Active", "Notes": "Commenced gap analysis against NIST AI RMF. Initial findings documented.", "UpdatedBy": "David Park"},
+        {"Date": "2026-01-10", "Status": "New", "Notes": "Identified gaps in current AI model governance following regulatory guidance update.", "UpdatedBy": "David Park"}
+      ]
+    },
+    {
+      "ItemID": "OFR-005",
+      "Title": "Contract template non-compliance with new regulations",
+      "Owner": "Lisa Wong",
+      "Priority": "Medium",
+      "Status": "Monitoring",
+      "FunctionalGroup": "OGC Contracts",
+      "DateRaised": "2025-12-15",
+      "LastUpdated": "2026-02-20",
+      "DaysSinceUpdate": 2,
+      "StalenessFlag": "Current",
+      "NextAction": "Monitor rollout of updated templates",
+      "Updates": [
+        {"Date": "2026-02-20", "Status": "Monitoring", "Notes": "Updated templates deployed to 8 of 10 practice groups. Remaining 2 scheduled for next week.", "UpdatedBy": "Lisa Wong"},
+        {"Date": "2026-02-01", "Status": "Active", "Notes": "Template revisions approved by OGC. Rollout plan finalised.", "UpdatedBy": "Lisa Wong"}
+      ]
+    },
+    {
+      "ItemID": "OFR-006",
+      "Title": "Privacy impact assessment backlog",
+      "Owner": "Robert Taylor",
+      "Priority": "Medium",
+      "Status": "Active",
+      "FunctionalGroup": "OGC Privacy",
+      "DateRaised": "2026-01-22",
+      "LastUpdated": "2026-02-10",
+      "DaysSinceUpdate": 12,
+      "StalenessFlag": "Aging",
+      "NextAction": "Clear 5 outstanding PIAs by month end",
+      "Updates": [
+        {"Date": "2026-02-10", "Status": "Active", "Notes": "3 of 8 PIAs completed. Prioritising remaining 5 by regulatory deadline.", "UpdatedBy": "Robert Taylor"},
+        {"Date": "2026-01-22", "Status": "New", "Notes": "Backlog of 8 PIAs identified across three business units.", "UpdatedBy": "Robert Taylor"}
+      ]
+    },
+    {
+      "ItemID": "OFR-007",
+      "Title": "Internal audit finding remediation delay",
+      "Owner": "Emily Brown",
+      "Priority": "High",
+      "Status": "Escalated",
+      "FunctionalGroup": "Internal Audit",
+      "DateRaised": "2025-12-20",
+      "LastUpdated": "2026-02-01",
+      "DaysSinceUpdate": 21,
+      "StalenessFlag": "Stale",
+      "NextAction": "Present remediation plan to audit committee",
+      "Updates": [
+        {"Date": "2026-02-01", "Status": "Escalated", "Notes": "Escalated after second missed remediation deadline. Audit committee briefing requested.", "UpdatedBy": "Emily Brown"},
+        {"Date": "2026-01-15", "Status": "Active", "Notes": "Remediation owner confirmed revised timeline. New target: Jan 31.", "UpdatedBy": "Emily Brown"},
+        {"Date": "2025-12-20", "Status": "New", "Notes": "Two high-priority audit findings from Q3 review remain unresolved past 90-day deadline.", "UpdatedBy": "Emily Brown"}
+      ]
+    },
+    {
+      "ItemID": "OFR-008",
+      "Title": "National security clearance renewal process",
+      "Owner": "James Wilson",
+      "Priority": "Low",
+      "Status": "New",
+      "FunctionalGroup": "National Security",
+      "DateRaised": "2026-02-18",
+      "LastUpdated": "2026-02-18",
+      "DaysSinceUpdate": 4,
+      "StalenessFlag": "Current",
+      "NextAction": "Assign to security team lead",
+      "Updates": [
+        {"Date": "2026-02-18", "Status": "New", "Notes": "Process review initiated for upcoming clearance renewal cycle (12 staff affected).", "UpdatedBy": "James Wilson"}
+      ]
+    },
+    {
+      "ItemID": "OFR-009",
+      "Title": "General counsel advisory on M&A due diligence",
+      "Owner": "Patricia Davis",
+      "Priority": "Medium",
+      "Status": "Active",
+      "FunctionalGroup": "OGC General Counsel",
+      "DateRaised": "2026-02-01",
+      "LastUpdated": "2026-02-19",
+      "DaysSinceUpdate": 3,
+      "StalenessFlag": "Current",
+      "NextAction": "Complete legal review of target entity",
+      "Updates": [
+        {"Date": "2026-02-19", "Status": "Active", "Notes": "Preliminary review of target entity corporate structure complete. IP portfolio assessment underway.", "UpdatedBy": "Patricia Davis"},
+        {"Date": "2026-02-01", "Status": "New", "Notes": "Advisory engagement initiated for potential acquisition target.", "UpdatedBy": "Patricia Davis"}
+      ]
+    },
+    {
+      "ItemID": "OFR-010",
+      "Title": "Independence conflict check automation",
+      "Owner": "Kevin Lee",
+      "Priority": "Low",
+      "Status": "Monitoring",
+      "FunctionalGroup": "Independence",
+      "DateRaised": "2025-11-30",
+      "LastUpdated": "2026-02-12",
+      "DaysSinceUpdate": 10,
+      "StalenessFlag": "Aging",
+      "NextAction": "Evaluate pilot results and report findings",
+      "Updates": [
+        {"Date": "2026-02-12", "Status": "Monitoring", "Notes": "Pilot running with 3 engagement teams. Early results show 40% reduction in manual checks.", "UpdatedBy": "Kevin Lee"},
+        {"Date": "2026-01-15", "Status": "Active", "Notes": "Automation tool deployed to pilot group. Training completed for 15 users.", "UpdatedBy": "Kevin Lee"}
+      ]
+    },
+    {
+      "ItemID": "OFR-011",
+      "Title": "Risk appetite statement annual refresh",
+      "Owner": "Amanda Clark",
+      "Priority": "Medium",
+      "Status": "Active",
+      "FunctionalGroup": "Risk Management Office",
+      "DateRaised": "2026-01-05",
+      "LastUpdated": "2026-02-08",
+      "DaysSinceUpdate": 14,
+      "StalenessFlag": "Aging",
+      "NextAction": "Circulate draft to leadership for comment",
+      "Updates": [
+        {"Date": "2026-02-08", "Status": "Active", "Notes": "Draft risk appetite statement updated to reflect new regulatory landscape. Pending leadership review.", "UpdatedBy": "Amanda Clark"},
+        {"Date": "2026-01-20", "Status": "Active", "Notes": "Commenced review of current risk appetite thresholds against FY26 strategy.", "UpdatedBy": "Amanda Clark"}
+      ]
+    },
+    {
+      "ItemID": "OFR-012",
+      "Title": "Engagement letter quality control findings",
+      "Owner": "Brian Foster",
+      "Priority": "High",
+      "Status": "Active",
+      "FunctionalGroup": "Engagement Risk",
+      "DateRaised": "2026-02-05",
+      "LastUpdated": "2026-02-21",
+      "DaysSinceUpdate": 1,
+      "StalenessFlag": "Current",
+      "NextAction": "Implement corrective measures across teams",
+      "Updates": [
+        {"Date": "2026-02-21", "Status": "Active", "Notes": "Root cause analysis complete. 3 corrective actions identified; implementation plan drafted.", "UpdatedBy": "Brian Foster"},
+        {"Date": "2026-02-12", "Status": "Active", "Notes": "QC review identified 7 engagement letters with missing or incorrect scope clauses.", "UpdatedBy": "Brian Foster"},
+        {"Date": "2026-02-05", "Status": "New", "Notes": "Quality control review flagged engagement letter deficiencies in two service lines.", "UpdatedBy": "Brian Foster"}
+      ]
+    },
+    {
+      "ItemID": "OFR-013",
+      "Title": "Client onboarding documentation gaps",
+      "Owner": "Diana Martinez",
+      "Priority": "Medium",
+      "Status": "New",
+      "FunctionalGroup": "Client Risk and KYC",
+      "DateRaised": "2026-02-19",
+      "LastUpdated": "2026-02-19",
+      "DaysSinceUpdate": 3,
+      "StalenessFlag": "Current",
+      "NextAction": "Review and assign to KYC analyst",
+      "Updates": [
+        {"Date": "2026-02-19", "Status": "New", "Notes": "Identified missing beneficial ownership documentation for 4 recently onboarded clients.", "UpdatedBy": "Diana Martinez"}
+      ]
+    },
+    {
+      "ItemID": "OFR-014",
+      "Title": "Cybersecurity incident response plan update",
+      "Owner": "Thomas Anderson",
+      "Priority": "High",
+      "Status": "Active",
+      "FunctionalGroup": "Technology Risk & AI Trust",
+      "DateRaised": "2026-01-28",
+      "LastUpdated": "2026-02-14",
+      "DaysSinceUpdate": 8,
+      "StalenessFlag": "Aging",
+      "NextAction": "Incorporate lessons from Q4 tabletop exercise",
+      "Updates": [
+        {"Date": "2026-02-14", "Status": "Active", "Notes": "Lessons learned from Q4 tabletop exercise documented. Updating IRP sections 3, 5, and 7.", "UpdatedBy": "Thomas Anderson"},
+        {"Date": "2026-01-28", "Status": "New", "Notes": "Annual review of incident response plan triggered. Q4 tabletop highlighted 4 improvement areas.", "UpdatedBy": "Thomas Anderson"}
+      ]
+    },
+    {
+      "ItemID": "OFR-015",
+      "Title": "Privacy regulation cross-border impact analysis",
+      "Owner": "Robert Taylor",
+      "Priority": "Low",
+      "Status": "Active",
+      "FunctionalGroup": "OGC Privacy",
+      "DateRaised": "2026-02-10",
+      "LastUpdated": "2026-02-17",
+      "DaysSinceUpdate": 5,
+      "StalenessFlag": "Current",
+      "NextAction": "Map regulatory requirements by jurisdiction",
+      "Updates": [
+        {"Date": "2026-02-17", "Status": "Active", "Notes": "Regulatory mapping underway for 6 priority jurisdictions. EU and UK complete.", "UpdatedBy": "Robert Taylor"},
+        {"Date": "2026-02-10", "Status": "New", "Notes": "Initiated analysis of cross-border privacy regulation impacts following new APAC requirements.", "UpdatedBy": "Robert Taylor"}
+      ]
+    },
+    {
+      "ItemID": "OFR-016",
+      "Title": "Firm-wide risk register consolidation initiative",
+      "Owner": "Amanda Clark",
+      "Priority": "Medium",
+      "Status": "Active",
+      "FunctionalGroup": "Risk Management Office",
+      "DateRaised": "2026-01-12",
+      "LastUpdated": "2026-01-30",
+      "DaysSinceUpdate": 23,
+      "StalenessFlag": "Stale",
+      "NextAction": "Merge regional registers into unified view",
+      "Updates": [
+        {"Date": "2026-01-30", "Status": "Active", "Notes": "3 of 5 regional registers mapped to unified taxonomy. APAC and EMEA remain.", "UpdatedBy": "Amanda Clark"},
+        {"Date": "2026-01-12", "Status": "New", "Notes": "Initiative launched to consolidate five separate regional risk registers into one firm-wide view.", "UpdatedBy": "Amanda Clark"}
+      ]
+    },
+    {
+      "ItemID": "OFR-017",
+      "Title": "Contract renewal risk for critical vendor",
+      "Owner": "Lisa Wong",
+      "Priority": "High",
+      "Status": "Active",
+      "FunctionalGroup": "OGC Contracts",
+      "DateRaised": "2026-02-12",
+      "LastUpdated": "2026-02-20",
+      "DaysSinceUpdate": 2,
+      "StalenessFlag": "Current",
+      "NextAction": "Negotiate revised SLA terms by March 1",
+      "Updates": [
+        {"Date": "2026-02-20", "Status": "Active", "Notes": "Vendor proposed revised SLA terms received. Under review by procurement and legal.", "UpdatedBy": "Lisa Wong"},
+        {"Date": "2026-02-12", "Status": "New", "Notes": "Critical infrastructure vendor contract expires March 15. Renewal negotiations required.", "UpdatedBy": "Lisa Wong"}
+      ]
+    },
+    {
+      "ItemID": "OFR-018",
+      "Title": "Audit committee reporting format standardization",
+      "Owner": "Emily Brown",
+      "Priority": "Low",
+      "Status": "New",
+      "FunctionalGroup": "Internal Audit",
+      "DateRaised": "2026-02-20",
+      "LastUpdated": "2026-02-20",
+      "DaysSinceUpdate": 2,
+      "StalenessFlag": "Current",
+      "NextAction": "Draft proposed template for committee review",
+      "Updates": [
+        {"Date": "2026-02-20", "Status": "New", "Notes": "Standardisation needed after committee feedback on inconsistent reporting formats across regions.", "UpdatedBy": "Emily Brown"}
+      ]
+    }
+  ]
+}

@@ -105,6 +105,7 @@ This is the triage queue for newly submitted issues.
 | 5 | **DateSubmitted** | Click **+ Add column** → **Date and time** → Name: `DateSubmitted` → Include time: **No** → Save |
 | 6 | **TriageStatus** | Click **+ Add column** → **Choice** → Name: `TriageStatus` → Choices: `Pending`, `Promoted`, `Dismissed`, `Accepted`, `Rejected` → Default value: `Pending` → Save |
 | 7 | **FunctionalGroup** | Click **+ Add column** → **Choice** → Name: `FunctionalGroup` → Choices: `Risk Management Office`, `Engagement Risk`, `Client Risk and KYC`, `Technology Risk & AI Trust`, `National Security`, `OGC General Counsel`, `OGC Privacy`, `OGC Contracts`, `Internal Audit`, `Independence` → Save |
+| 8 | **RelatedOFRIssue** | Click **+ Add column** → **Single line of text** → Name: `RelatedOFRIssue` → Save |
 
 > **Important:** The TriageStatus column needs **all 5 choice values**:
 > - `Pending` — default, set on submission
@@ -115,7 +116,7 @@ This is the triage queue for newly submitted issues.
 
 ### Verify OFR_IntakeQueue
 
-Confirm 7 columns exist with TriageStatus having all 5 choices and defaulting to "Pending", and FunctionalGroup having all 10 group choices.
+Confirm 8 columns exist with TriageStatus having all 5 choices and defaulting to "Pending", FunctionalGroup having all 10 group choices, and RelatedOFRIssue as single line of text.
 
 **Reference schema:** See `OFR_IntakeQueue-schema.json`.
 

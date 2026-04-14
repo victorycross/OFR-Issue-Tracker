@@ -1,8 +1,8 @@
 # OFR Issue Tracker — Migration & Installation Guide
 
-**Version:** 1.0
-**Package Date:** February 2025
-**Estimated Deployment Time:** ~2 hours
+**Version:** 2.0
+**Package Date:** February 2026
+**Estimated Deployment Time:** ~2 hours (Phase 1) + ~1 hour (Phase 2, optional)
 
 ---
 
@@ -15,8 +15,9 @@ The OFR Issue Tracker is a fully M365-native risk issue management system built 
 | Component | Technology | Description |
 |-----------|-----------|-------------|
 | **3 SharePoint Lists** | SharePoint Online | OFR_Issues (tracker), OFR_UpdateHistory (audit trail), OFR_IntakeQueue (triage queue) |
-| **1 Power Apps Canvas App** | Power Apps | 6 screens: Dashboard, Tracker, Issue Detail, Submit, Group Allocation, Kanban — with 2 side panels |
-| **2 Power Automate Flows** | Power Automate | Daily Staleness Calculator (scheduled) + Intake Promotion (instant/triggered) |
+| **1 Power Apps Canvas App** | Power Apps | 7 screens: Dashboard, Tracker, Issue Detail, Submit, Group Allocation, Kanban, Closed Items — with 2 side panels |
+| **3 Power Automate Flows** | Power Automate | Daily Staleness Calculator (scheduled) + Intake Promotion (instant) + Issue Deck Generator (instant, Phase 2) |
+| **1 Azure Function** *(Phase 2)* | Azure Functions (Python 3.11) | Automated PPTX deck generation — fetches data, builds slides, uploads to SharePoint |
 | **Documentation** | Markdown + HTML | SDD, test plan, user guide, tear sheet, build guides |
 
 ### Architecture
@@ -30,11 +31,18 @@ The OFR Issue Tracker is a fully M365-native risk issue management system built 
  │                    │                 ▲            │
  │                    ▼                 │            │
  │              Power Automate ─────────┘            │
- │              2 Cloud Flows                        │
+ │              3 Cloud Flows                        │
+ │                    │                              │
+ │ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ ┄ │
+ │   Phase 2 (Optional):                            │
+ │              Azure Function (Python 3.11) ◄──────┤
+ │              PPTX Deck Generator                  │
  └──────────────────────────────────────────────────┘
 ```
 
-**Zero infrastructure required.** No Azure subscriptions, no custom domains, no CI/CD pipelines. Everything runs within M365.
+**Phase 1** requires zero infrastructure beyond M365 — no Azure subscriptions, no custom domains, no CI/CD pipelines.
+
+**Phase 2** (optional) adds an Azure Function for automated PPTX deck generation. Runs on a Consumption plan (<$0.10/month).
 
 ---
 
@@ -89,6 +97,17 @@ Complete these steps in order. Each step references a detailed guide document.
 
 [ ] Step 9: Optional — Pin app as a Microsoft Teams tab
              → See Step 8 in 03-PowerApps/REBUILD-GUIDE.md
+
+───────── Phase 2 (Optional): Issue Deck Generator ─────────
+
+[ ] Step 10: Deploy Azure Function
+              → 06-Environment-Config/Azure-Function-Setup.md
+
+[ ] Step 11: Build Power Automate Flow 3 — Issue Deck Generator
+              → 02-PowerAutomate/OFR-Issue-Deck-Generator.md
+
+[ ] Step 12: Update Power Apps "Generate Issue Deck" button
+              → See "Power Apps Integration" in OFR-Issue-Deck-Generator.md
 ```
 
 ---
@@ -125,9 +144,19 @@ Step 5: Intake Promotion Flow ─────────┤
                                        │
                                        ▼
                               Step 9: Teams Tab (optional)
+
+              ── Phase 2 (Optional) ──
+
+                              Step 10: Azure Function
+                                       │
+                                       ▼
+                              Step 11: Issue Deck Generator Flow
+                                       │
+                                       ▼
+                              Step 12: Update Power Apps Button
 ```
 
-**Key dependency:** Power Apps requires both the SharePoint lists (for data sources) and the Intake Promotion flow (for the Promote button) to exist before the app can be fully configured.
+**Key dependency:** Power Apps requires both the SharePoint lists (for data sources) and the Intake Promotion flow (for the Promote button) to exist before the app can be fully configured. Phase 2 requires Phase 1 to be complete.
 
 ---
 
@@ -203,6 +232,35 @@ This flow has more steps (7 actions) and requires careful dynamic content mappin
 
 Follow the instructions at the end of `03-PowerApps/REBUILD-GUIDE.md` for sharing, testing, and Teams integration.
 
+### Phase 2 (Optional): Issue Deck Generator
+
+Phase 2 adds automated PPTX deck generation — a button in Power Apps that generates a branded risk report deck and uploads it to SharePoint.
+
+**Requirements:** Azure subscription, Azure CLI, Azure Functions Core Tools v4
+
+### Step 10: Deploy Azure Function
+
+**Time: ~30 minutes**
+
+Follow `06-Environment-Config/Azure-Function-Setup.md` to:
+1. Create Azure resources (Resource Group, Storage Account, Function App)
+2. Create an Entra ID app registration with Graph API permissions
+3. Configure Application Settings (environment variables)
+4. Deploy the Function code
+5. Test the endpoint
+
+### Step 11: Build Issue Deck Generator Flow
+
+**Time: ~15 minutes**
+
+Follow `02-PowerAutomate/OFR-Issue-Deck-Generator.md` step by step to create the Power Automate flow that calls the Azure Function and returns results to Power Apps.
+
+### Step 12: Update Power Apps Button
+
+**Time: ~10 minutes**
+
+Follow the "Power Apps Integration" section in `02-PowerAutomate/OFR-Issue-Deck-Generator.md` to update `Btn_Dash_GenerateDeck` with the flow trigger formula and loading indicator.
+
 ---
 
 ## Post-Deployment Verification
@@ -216,6 +274,8 @@ After all components are deployed, verify end-to-end:
 | Accept intake item | New issue created in OFR_Issues, intake marked "Accepted" |
 | Reject intake item | Intake item marked "Rejected", disappears from gallery |
 | Navigate to Tracker | All issues display with correct staleness colors |
+| Navigate to Closed Items | Only closed issues displayed, searchable by ID/title/owner/group |
+| Click Closed Items KPI card | Navigates to Closed Items screen |
 | Filter by "High" | Only high-priority issues shown |
 | Search for an owner name | Matching issues displayed |
 | Click issue row | Detail screen shows header + update history |
@@ -223,7 +283,16 @@ After all components are deployed, verify end-to-end:
 | Submit new issue | New item in OFR_IntakeQueue with "Pending" status |
 | Run staleness flow | DaysSinceUpdate recalculates, StalenessFlag updates |
 
-For comprehensive testing, use the 76-case test plan: `04-Documentation/OFR-Test-Plan.md`
+### Phase 2 Verification (if deployed)
+
+| Test | Expected Result |
+|------|-----------------|
+| Test Azure Function endpoint | HTTP 200 with JSON response containing `status: "success"` |
+| Click "Generate Issue Deck" in Power App | Loading indicator appears, then success notification with filename |
+| Open generated PPTX | Deck contains cover, KPI dashboard, priority tables, group sections, issue detail slides |
+| Check SharePoint "Generated Reports" folder | New timestamped PPTX file appears |
+
+For comprehensive testing, use the test plan: `04-Documentation/OFR-Test-Plan.md`
 
 ---
 
@@ -256,6 +325,16 @@ For comprehensive testing, use the 76-case test plan: `04-Documentation/OFR-Test
 | "Delegation warning" on Filter | Expected for complex filters — acceptable for lists under 500 items |
 | Gallery shows no items | Check that the SharePoint list has data and the filter formula matches column names |
 
+### Azure Function Issues (Phase 2)
+
+| Issue | Solution |
+|-------|----------|
+| HTTP 500 "missing credentials" | Verify all 5 Application Settings are configured in the Function App |
+| HTTP 403 from Graph API | Check app registration has `Sites.Read.All` + `Sites.ReadWrite.All` with admin consent |
+| HTTP 401 authentication failure | Verify client ID, tenant ID, and check if client secret has expired |
+| Function times out | Check `host.json` timeout setting (default 5 min). Very large datasets may need more time |
+| Flow fails with HTTP error | Check the function key in the Power Automate HTTP action headers |
+
 ### General Issues
 
 | Issue | Solution |
@@ -277,7 +356,7 @@ OFR-Migration-Package/
 │   ├── CREATE-SITE.md                         ← Site + list creation guide
 │   ├── OFR_Issues-schema.json                 ← 11 columns
 │   ├── OFR_UpdateHistory-schema.json          ← 6 columns
-│   ├── OFR_IntakeQueue-schema.json            ← 7 columns
+│   ├── OFR_IntakeQueue-schema.json            ← 8 columns
 │   └── sample-data/
 │       ├── OFR_Issues-sample.csv              ← 8 records
 │       ├── OFR_UpdateHistory-sample.csv       ← 17 records
@@ -286,6 +365,7 @@ OFR-Migration-Package/
 ├── 02-PowerAutomate/
 │   ├── OFR-Daily-Staleness-Calculator.md      ← Scheduled flow rebuild guide
 │   ├── OFR-Intake-Promotion.md                ← Instant flow rebuild guide
+│   ├── OFR-Issue-Deck-Generator.md            ← Deck generator flow guide (Phase 2)
 │   └── flow-expressions/
 │       ├── staleness-DaysSinceUpdate.txt       ← Copy-paste expression
 │       ├── staleness-StalenessFlag.txt         ← Copy-paste expression
@@ -293,12 +373,12 @@ OFR-Migration-Package/
 │
 ├── 03-PowerApps/
 │   ├── REBUILD-GUIDE.md                        ← Overview + Intake Review panel
-│   └── OFR-PowerApps-Completion-Guide.md       ← Full 87KB construction guide (6 screens)
+│   └── OFR-PowerApps-Completion-Guide.md       ← Full construction guide (7 screens)
 │
 ├── 04-Documentation/
 │   ├── OFR-SDD.md                              ← System Design Document (neutralized)
 │   ├── OFR-Completion-Guide.md                 ← Build summary (neutralized)
-│   ├── OFR-Test-Plan.md                        ← 45-case test plan
+│   ├── OFR-Test-Plan.md                        ← 103-case test plan
 │   ├── OFR-User-Guide.md                       ← End-user documentation
 │   └── OFR-Tear-Sheet.html                     ← Product tear sheet
 │
@@ -315,7 +395,8 @@ OFR-Migration-Package/
 │
 └── 06-Environment-Config/
     ├── ENVIRONMENT-VARIABLES.md                 ← Fill in your values first
-    └── find-and-replace-checklist.md            ← Substitution checklist
+    ├── find-and-replace-checklist.md            ← Substitution checklist
+    └── Azure-Function-Setup.md                  ← Azure Function deployment (Phase 2)
 ```
 
 ---

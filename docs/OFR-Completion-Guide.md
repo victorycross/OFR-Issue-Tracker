@@ -2,7 +2,7 @@
 
 ## Build Summary
 
-The One Firm Risk (OFR) Issue Tracker has been rebuilt as a fully M365-native solution using SharePoint Online, Power Apps, and Power Automate. Zero custom code, zero Azure infrastructure.
+The One Firm Risk (OFR) Issue Tracker has been rebuilt as a fully M365-native solution using SharePoint Online, Power Apps, and Power Automate. Phase 1 requires zero custom code and zero Azure infrastructure. Phase 2 (optional) adds an Azure Function for automated PPTX deck generation.
 
 ---
 
@@ -16,7 +16,7 @@ The One Firm Risk (OFR) Issue Tracker has been rebuilt as a fully M365-native so
 |------|---------|---------|
 | OFR_Issues | Main issue tracker | Title, ItemID, Owner, Priority (High/Medium/Low), Status (New/Active/Monitoring/Escalated/Closed), DateRaised, LastUpdated, NextAction, DaysSinceUpdate, StalenessFlag (Current/Aging/Stale), FunctionalGroup (10 groups) |
 | OFR_UpdateHistory | Audit trail for updates | Title, ParentItemID, UpdateDate, StatusAtUpdate, Notes, UpdatedBy |
-| OFR_IntakeQueue | Triage queue for new issues | Title, Owner, Priority, Description, DateSubmitted, TriageStatus (Pending/Promoted/Dismissed/Accepted/Rejected), FunctionalGroup (10 groups) |
+| OFR_IntakeQueue | Triage queue for new issues | Title, Owner, Priority, Description, DateSubmitted, TriageStatus (Pending/Promoted/Dismissed/Accepted/Rejected), FunctionalGroup (10 groups), RelatedOFRIssue |
 
 ### Power Apps Canvas App (UI Layer)
 
@@ -71,6 +71,19 @@ The One Firm Risk (OFR) Issue Tracker has been rebuilt as a fully M365-native so
 |------|----|---------|---------|
 | OFR Daily Staleness Calculator | `aefb8de0-35fe-4d5d-a629-ddd8502ee5aa` | Recurrence (daily 6 AM) | Calculates DaysSinceUpdate and sets StalenessFlag for all open issues |
 | OFR Intake Promotion | `1c631640-113f-4602-805e-1d693582de8c` | Power Apps V2 trigger | Promotes intake item → creates OFR_Issues entry + UpdateHistory audit trail → marks intake as Promoted → returns new ItemID |
+| OFR Generate Issue Deck *(Phase 2)* | `718dd979-d1e9-497a-b9ec-fa49152c7963` | Power Apps V2 trigger | Calls Azure Function to generate PPTX deck → returns filename + URL to Power Apps |
+
+### Azure Function (Backend Layer — Phase 2, Optional)
+
+| Property | Value |
+|----------|-------|
+| Function App | `func-ofr-issuetracker` (Azure Functions, Python 3.11, Consumption plan) |
+| Endpoint | `POST /api/generate-deck` |
+| Auth | Function-level key |
+| App Registration | `Bright Path Risk Tracker` (Client ID: `7570df18-68fe-47be-9305-7f6476909ebb`) |
+| Graph API Permissions | `Sites.Read.All` + `Sites.ReadWrite.All` (Application, admin-consented) |
+
+**Pipeline:** HTTP POST → Fetch OFR_Issues + OFR_UpdateHistory from SharePoint (Graph API) → Generate ~51-slide PPTX in memory (python-pptx) → Upload to `Shared Documents/Generated Reports/` → Return JSON `{status, filename, url, issue_count, generated_at}`
 
 ### Sample Data Loaded
 
@@ -162,6 +175,7 @@ Respond to Power App: NewItemID
 
 | Feature | Approach | Effort |
 |---------|----------|--------|
+| ~~PPTX Deck Generation~~ | ~~Azure Function + Power Automate flow~~ | **Done (Phase 2)** |
 | Bilingual EN/FR | Power Apps variables + Switch() for labels | Medium |
 | CSV Export | SharePoint list "Export to Excel" or Power Automate file creation | Low |
 | Email Notifications | Power Automate flow for stale items → Office 365 Outlook send | Low |
@@ -179,9 +193,12 @@ Respond to Power App: NewItemID
 | OFR_IntakeQueue List | https://papercutscafe.sharepoint.com/sites/OFRIssueTracker/Lists/OFR_IntakeQueue |
 | Power Apps Studio | https://make.powerapps.com |
 | Power Automate | https://make.powerautomate.com |
+| Azure Function Endpoint *(Phase 2)* | https://func-ofr-issuetracker.azurewebsites.net/api/generate-deck |
 
 ---
 
 ## Architecture Advantage
 
-**Zero infrastructure.** No Azure subscriptions, no GitHub repos, no CI/CD pipelines, no custom domains, no SSL certificates. Everything runs within M365. Users authenticate automatically via Entra ID. Data stays in SharePoint. The app lives in Power Apps and can be pinned to Teams. IT has nothing new to manage.
+**Phase 1: Zero infrastructure.** No Azure subscriptions, no GitHub repos, no CI/CD pipelines, no custom domains, no SSL certificates. Everything runs within M365. Users authenticate automatically via Entra ID. Data stays in SharePoint. The app lives in Power Apps and can be pinned to Teams. IT has nothing new to manage.
+
+**Phase 2 (optional):** Adds a single Azure Function (Consumption plan, <$0.10/month) for automated deck generation. This is the only component outside M365 and can be deployed independently after Phase 1 is complete.

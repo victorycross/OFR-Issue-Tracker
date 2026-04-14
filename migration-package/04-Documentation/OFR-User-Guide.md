@@ -1,7 +1,7 @@
 # OFR Issue Tracker — User Guide
 
-**Version:** 1.4
-**Last Updated:** February 21, 2026
+**Version:** 1.6
+**Last Updated:** February 23, 2026
 
 ---
 
@@ -37,7 +37,7 @@ Every screen in the app has the same navigation menu in the top-left corner. Thi
 
 ### Hamburger Menu
 
-Tap the **☰** (three horizontal lines) button in the top-left corner of any screen to open the navigation menu. A dropdown panel appears with five options:
+Tap the **☰** (three horizontal lines) button in the top-left corner of any screen to open the navigation menu. A dropdown panel appears with six options:
 
 | Menu Item | Destination |
 |-----------|-------------|
@@ -45,6 +45,7 @@ Tap the **☰** (three horizontal lines) button in the top-left corner of any sc
 | **Issue Tracker** | The sortable/filterable issue table |
 | **Group Allocation** | Colour-coded cards showing open issues per functional group |
 | **Kanban Board** | Visual board with issues organised by status columns |
+| **Closed Items** | Searchable list of all resolved and closed issues |
 | **Submit New Issue** | The form to submit a new issue into the intake queue |
 
 The screen you are currently on is highlighted in the menu so you always know where you are.
@@ -72,7 +73,7 @@ At the top of the screen you will see six summary cards:
 | Card | What It Shows |
 |------|---------------|
 | **Open Items** | Total number of issues that are not yet closed |
-| **Closed Items** | Total number of issues that have been resolved and closed |
+| **Closed Items** | Total number of issues that have been resolved and closed. **Click this card** to navigate directly to the Closed Items screen. |
 | **Stale** | Issues with no update in 15 or more days — these need urgent attention |
 | **High Priority** | Open issues flagged as High priority |
 | **Medium** | Open issues flagged as Medium priority |
@@ -118,6 +119,30 @@ At the bottom of the panel you can:
 4. Click **Submit**
 
 The issue will appear in the Intake Queue as "Pending" and wait for someone to review, accept, or reject it via the Intake Review panel — or promote/dismiss it.
+
+### Generate Issue Deck
+
+The **Generate Issue Deck** button on the Dashboard creates a branded PowerPoint report of all current issues and uploads it to SharePoint.
+
+**How to use it:**
+
+1. Click the **Generate Issue Deck** button on the Dashboard
+2. A loading message appears: "Generating Issue Deck... This may take 30-45 seconds."
+3. When complete, a success notification shows the filename
+4. The generated deck opens automatically in your browser
+
+**What the deck contains:**
+
+- Cover slide and Executive Summary
+- KPI Dashboard with colour-coded statistics
+- Priority Summary tables (High, Medium, Low)
+- Per-group section dividers and issue tables for all 10 functional groups
+- Individual Issue Detail slides with status badges, update history timelines, and next actions
+- Items Requiring Attention table highlighting stale issues
+
+The generated file is saved to **Shared Documents → Generated Reports** in the SharePoint site, so you can access previous reports at any time.
+
+> **Note:** This feature requires the optional Azure Function deployment (Phase 2). If the Azure Function has not been deployed, the button may not be available or may show an error.
 
 ### Navigation
 
@@ -264,6 +289,7 @@ To close an issue, add a final update explaining the resolution and change the s
 - No longer appear in the "All Open" filter on the Tracker
 - Are not included in the daily staleness calculation
 - Reduce the Open Items count on the Dashboard
+- Appear on the **Closed Items** screen, where you can search and review them at any time
 - Remain in the system for audit purposes — they are never deleted
 
 ### Navigation
@@ -283,6 +309,7 @@ The Submit screen is a dedicated form for creating new intake items.
    - **Topic | Issue | Problem** — A clear, concise description of the risk, issue, or problem being submitted (this field was previously labelled "Title")
    - **Priority** — Select High, Medium, or Low based on urgency
    - **Functional** — Select the appropriate functional group from the dropdown (this field was previously labelled "Functional Group"). There are 10 options: Risk Management Office, Engagement Risk, Client Risk and KYC, Technology Risk & AI Trust, National Security, OGC General Counsel, OGC Privacy, OGC Contracts, Internal Audit, and Independence. This field is optional but recommended — assigning a functional group at submission time helps managers route and triage issues more efficiently.
+   - **Related OFR Issue** *(optional)* — If this issue is related to an existing tracked issue, enter the OFR issue ID (e.g., "OFR-1"). This helps managers identify connections between issues during triage.
    - **Description** — Provide enough context so a reviewer can understand the issue, its impact, and any relevant background
    - **Submitted By** — Shows the name of the person submitting the issue (auto-populated from your Microsoft 365 account)
 3. Click **Submit**
@@ -353,6 +380,50 @@ Issues are sorted within each column so that the most stale issues (longest sinc
 ### How to View Issue Details
 
 Click any issue card to navigate directly to the Issue Detail screen for that issue.
+
+### Navigation
+
+Use the **☰ hamburger menu** in the top-left corner to navigate to any other screen, or tap **+ Submit New Issue** on the right side of the header bar. See the [Navigating the App](#navigating-the-app) section for details.
+
+---
+
+## Screen 7: Closed Items
+
+The Closed Items screen gives you a dedicated view of all issues that have been resolved and closed. This makes it easy to review past issues, check how they were resolved, and find historical records without scrolling through the main Tracker.
+
+### How to Access
+
+There are two ways to reach the Closed Items screen:
+
+- **From any screen:** Open the **☰ hamburger menu** and select **Closed Items**
+- **From the Dashboard:** Click the yellow **Closed Items** KPI card at the top of the Dashboard
+
+### What You See
+
+A searchable list of all closed issues. Each row shows:
+
+| Column | Description |
+|--------|-------------|
+| **Issue ID** | The unique identifier (e.g., OFR-1, OFR-5) |
+| **Title** | Short description of the issue |
+| **Owner** | The person who was responsible for the issue |
+| **Functional Group** | The team that owned this issue |
+| **Closure Date** | When the issue was closed |
+
+### Searching
+
+Use the **search bar** at the top of the screen to find specific closed issues. You can search by:
+
+- **Issue ID** — e.g., type "OFR-12" to find a specific issue
+- **Title** — e.g., type "compliance" to find issues related to compliance
+- **Owner** — e.g., type "Sarah" to find all closed issues that were owned by Sarah Chen
+- **Functional Group** — e.g., type "Privacy" to find closed issues from OGC Privacy
+
+The list updates as you type, showing only items that match your search.
+
+### Viewing Issue Details
+
+Click any row in the list to navigate to the full **Issue Detail** screen for that issue. From there you can review the complete update history timeline and see how the issue was resolved.
 
 ### Navigation
 
@@ -450,6 +521,12 @@ A: Yes. Go to the SharePoint list directly and use the built-in "Export to Excel
 **Q: What if the staleness colors seem wrong?**
 A: The staleness calculation runs once daily at 6:00 AM. If you add an update, the Days Since Update resets immediately in the app, but the staleness flag color may not update until the next morning's automated run.
 
+**Q: How do I generate a report deck?**
+A: Click the **Generate Issue Deck** button on the Dashboard. The system creates a branded PowerPoint deck with all current issues, uploads it to SharePoint, and opens it in your browser. The process takes 30-45 seconds. Previously generated decks are saved in `Shared Documents/Generated Reports` in the SharePoint site.
+
+**Q: Why does the "Generate Issue Deck" button show an error?**
+A: The deck generation feature requires the optional Azure Function (Phase 2) to be deployed. If your administrator has not set up the Azure Function, this feature will not be available. Contact your administrator for assistance.
+
 **Q: Can I undo an acceptance, rejection, promotion, or dismissal?**
 A: These actions cannot be undone from within the app. An administrator can manually change the TriageStatus in the SharePoint list if needed.
 
@@ -461,7 +538,7 @@ If you encounter issues with the app or need changes, contact your system admini
 
 | Resource | Location |
 |----------|----------|
-| SharePoint Site | https://papercutscafe.sharepoint.com/sites/OFRIssueTracker |
+| SharePoint Site | https://[TENANT].sharepoint.com/sites/OFRIssueTracker |
 | Power Apps Studio | https://make.powerapps.com |
 | Power Automate | https://make.powerautomate.com |
 | Technical Documentation | See OFR-SDD.md (System Design Document) |

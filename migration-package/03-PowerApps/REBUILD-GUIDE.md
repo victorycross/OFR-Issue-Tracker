@@ -9,16 +9,17 @@
 
 ## Overview
 
-The OFR Issue Tracker Power App is a Canvas App with **6 screens** and **2 side panels**:
+The OFR Issue Tracker Power App is a Canvas App with **7 screens** and **2 side panels**:
 
 | Screen | Purpose |
 |--------|---------|
-| **DashboardScreen** | Executive KPI overview, Intake Queue gallery, Intake Review panel, Submit New Issue button, navigation to all screens |
+| **DashboardScreen** | Executive KPI overview, Intake Queue gallery, Intake Review panel, KPI drill-through, navigation to all screens |
 | **TrackerScreen** | Sortable/filterable issue table with FunctionalGroup column and quick-update side panel |
 | **IssueDetailScreen** | Full issue view with FunctionalGroup, update history timeline and add-update form |
 | **SubmitScreen** | New issue submission form with FunctionalGroup dropdown (writes to OFR_IntakeQueue) |
 | **GroupAllocationScreen** | Active issue counts per functional group in 2x5 card grid |
 | **KanbanScreen** | Visual board with 4 vertical swim-lanes by status (New, Active, Escalated, Monitoring) |
+| **ClosedScreen** | Searchable archive of closed issues with drill-through to Issue Detail |
 
 ---
 
@@ -64,12 +65,13 @@ Follow the detailed construction guide in **`OFR-PowerApps-Completion-Guide.md`*
 
 ### Build Order
 
-1. **DashboardScreen** — KPI cards, Intake Gallery, navigation buttons (Tracker, Group Allocation, Kanban)
+1. **DashboardScreen** — KPI cards (with Closed Items drill-through), Intake Gallery, hamburger navigation
 2. **TrackerScreen** — Filter toggles, search, issue gallery with FunctionalGroup column, column headers, quick-update panel
 3. **IssueDetailScreen** — Issue header with FunctionalGroup, update history gallery, add-update form
 4. **SubmitScreen** — New issue submission form with FunctionalGroup dropdown
-5. **GroupAllocationScreen** — 10 group cards in 2x5 grid showing active issue counts per functional group
+5. **GroupAllocationScreen** — 10 group cards in 4-4-2 grid showing active issue counts per functional group
 6. **KanbanScreen** — 4 vertical galleries (New, Active, Escalated, Monitoring) with issue cards
+7. **ClosedScreen** — Search bar + gallery of closed issues, drill-through to IssueDetailScreen
 
 ### Intake Review Panel (DashboardScreen)
 
@@ -136,6 +138,53 @@ UpdateContext({showIntakePanel: false});
 Notify("Issue rejected", NotificationType.Warning)
 ```
 
+### ClosedScreen
+
+The ClosedScreen is a dedicated archive showing all closed issues. It can be built by creating a new blank screen or duplicating the KanbanScreen.
+
+**Screen OnVisible:**
+```
+UpdateContext({varShowNav: false, varClosedSearch: ""})
+```
+
+| Control | Type | Key Property |
+|---------|------|-------------|
+| Txt_Closed_Search | TextInput | HintText: `"Search by ID, title, owner, or group..."`, OnChange: `UpdateContext({varClosedSearch: Self.Text})` |
+| Gal_Closed_Issues | Gallery (vertical) | Items: see formula below, OnSelect: `Navigate(IssueDetailScreen, ScreenTransition.Fade, {selectedItem: ThisItem})` |
+
+**Gal_Closed_Issues Items formula:**
+```
+SortByColumns(
+    Filter(
+        OFR_Issues,
+        Status.Value = "Closed",
+        Or(
+            IsBlank(varClosedSearch),
+            varClosedSearch in Title,
+            varClosedSearch in Owner,
+            varClosedSearch in ItemID
+        )
+    ),
+    "LastUpdated",
+    SortOrder.Descending
+)
+```
+
+**Gallery row template:**
+- Title: `ThisItem.ItemID & "  |  " & ThisItem.Title & "  |  " & ThisItem.Owner`
+- Subtitle: `ThisItem.FunctionalGroup.Value & "  |  Closed " & Text(ThisItem.LastUpdated, "yyyy-mm-dd")`
+
+### Dashboard KPI Drill-Through
+
+Set `OnSelect` on the Closed Items KPI card elements (count label, text label, background shape) to:
+```
+Navigate(ClosedScreen, ScreenTransition.Fade)
+```
+
+### Hamburger Navigation (all 7 screens)
+
+Every screen has 10 navigation controls: hamburger button, overlay rectangle, dropdown panel, 6 nav buttons (Dashboard, Issue Tracker, Group Allocation, Kanban Board, Closed Items, Submit New Issue), and a "+ Submit New Issue" CTA. The dropdown height is 264px (6 items × 44px). See the Completion Guide for exact formulas and positioning.
+
 ## Step 5: Design System Reference
 
 | Element | Value |
@@ -156,6 +205,7 @@ Notify("Issue rejected", NotificationType.Warning)
 2. **Preview:** Click the Play button (top-right) to test
 3. Test checklist:
    - Dashboard KPIs show correct counts
+   - Clicking Closed Items KPI card navigates to ClosedScreen
    - Intake queue shows pending items
    - Clicking intake item opens review panel
    - Accept/Reject work correctly
@@ -163,6 +213,8 @@ Notify("Issue rejected", NotificationType.Warning)
    - Issue detail shows update history
    - Adding an update saves correctly
    - Submit screen creates new intake items
+   - Closed Items screen shows only closed issues, search works
+   - Hamburger menu shows 6 items on all 7 screens
 4. **Publish:** Click the Publish icon → Publish this version
 
 ## Step 7: Share the App

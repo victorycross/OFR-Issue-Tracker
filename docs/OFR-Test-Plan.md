@@ -1,7 +1,7 @@
 # OFR Issue Tracker — Test Plan
 
-**Version:** 1.2
-**Date:** February 21, 2026
+**Version:** 1.4
+**Date:** February 23, 2026
 **Application:** OFR Issue Tracker (M365-Native)
 **Environment:** papercuts.cafe (default) — M365 Business Standard + Power Apps Developer + Power Automate Free
 
@@ -9,7 +9,9 @@
 
 ## 1. Test Objectives
 
-Validate that the M365-native OFR Issue Tracker correctly supports the full issue lifecycle: intake submission, triage, promotion to active tracking, issue updates with audit trail, staleness calculations, dashboard KPIs, filtering/search, and consistent hamburger navigation across all screens. Confirm all three layers (SharePoint data, Power Apps UI, Power Automate automation) work together end-to-end.
+Validate that the M365-native OFR Issue Tracker correctly supports the full issue lifecycle: intake submission, triage, promotion to active tracking, issue updates with audit trail, staleness calculations, dashboard KPIs, filtering/search, closed issue archive, KPI drill-through, and consistent hamburger navigation across all 7 screens. Confirm all three layers (SharePoint data, Power Apps UI, Power Automate automation) work together end-to-end.
+
+**App Checker Status:** All controls have `AccessibleLabel` and `TabIndex` properties set for screen reader and keyboard navigation support. 45 delegation warnings are accepted (non-delegable `CountRows(Filter(...))` on Choice columns — acceptable for lists under 500 items). Performance issues resolved by replacing cross-screen control references with `selectedItem` context variable on IssueDetailScreen.
 
 ---
 
@@ -58,8 +60,8 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | Field | Value |
 |-------|-------|
 | **Precondition** | Navigate to OFR_IntakeQueue list |
-| **Steps** | 1. Open OFR_IntakeQueue list <br> 2. Verify 7 columns: Title, Owner, Priority, Description, DateSubmitted, TriageStatus, FunctionalGroup <br> 3. Verify TriageStatus choices: Pending/Promoted/Dismissed/Accepted/Rejected <br> 4. Verify default value is "Pending" <br> 5. Verify FunctionalGroup has all 10 group choices |
-| **Expected Result** | All columns present with correct types. TriageStatus has all 5 choice values. FunctionalGroup has 10 choices. |
+| **Steps** | 1. Open OFR_IntakeQueue list <br> 2. Verify 8 columns: Title, Owner, Priority, Description, DateSubmitted, TriageStatus, FunctionalGroup, RelatedOFRIssue <br> 3. Verify TriageStatus choices: Pending/Promoted/Dismissed/Accepted/Rejected <br> 4. Verify default value is "Pending" <br> 5. Verify FunctionalGroup has all 10 group choices <br> 6. Verify RelatedOFRIssue is Single line of text |
+| **Expected Result** | All columns present with correct types. TriageStatus has all 5 choice values. FunctionalGroup has 10 choices. RelatedOFRIssue is text (optional). |
 | **Priority** | High |
 
 #### TC-SP-04: Verify sample data integrity
@@ -237,6 +239,22 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Steps** | 1. Fill in Title, Priority, Description <br> 2. Select "OGC Privacy" from the FunctionalGroup dropdown <br> 3. Click Submit <br> 4. Open OFR_IntakeQueue in SharePoint <br> 5. Find the new intake item |
 | **Expected Result** | New intake item has FunctionalGroup = "OGC Privacy". |
 | **Priority** | High |
+
+#### TC-PA-S06: RelatedOFRIssue field present on Submit Screen
+| Field | Value |
+|-------|-------|
+| **Precondition** | Submit Screen loaded |
+| **Steps** | 1. Verify a "Related OFR Issue (Optional)" text input is visible on the form <br> 2. Verify the hint text shows "e.g. OFR-1" |
+| **Expected Result** | Text input present with hint text. Field is optional (can be left blank). |
+| **Priority** | Medium |
+
+#### TC-PA-S07: RelatedOFRIssue value saved on submit
+| Field | Value |
+|-------|-------|
+| **Precondition** | Submit Screen loaded |
+| **Steps** | 1. Fill in Title, Priority, Description <br> 2. Enter "OFR-3" in the Related OFR Issue field <br> 3. Click Submit <br> 4. Open OFR_IntakeQueue in SharePoint <br> 5. Find the new intake item |
+| **Expected Result** | New intake item has RelatedOFRIssue = "OFR-3". |
+| **Priority** | Medium |
 
 ---
 
@@ -664,14 +682,102 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 
 ---
 
-### 3.8b — Power Apps: Hamburger Navigation Menu (Cross-Screen)
+### 3.8b — Power Apps: Closed Items Screen
+
+#### TC-PA-CLS01: Navigate to ClosedScreen via hamburger menu
+| Field | Value |
+|-------|-------|
+| **Precondition** | Any screen loaded (e.g., DashboardScreen) |
+| **Steps** | 1. Click the ☰ hamburger menu button <br> 2. Click "Closed Items" in the dropdown <br> 3. Verify navigation to ClosedScreen |
+| **Expected Result** | Dropdown closes. ClosedScreen loads showing closed issues only. |
+| **Priority** | High |
+
+#### TC-PA-CLS02: ClosedScreen gallery shows only closed issues
+| Field | Value |
+|-------|-------|
+| **Precondition** | ClosedScreen loaded, at least one issue has Status = "Closed" and other issues have open statuses |
+| **Steps** | 1. Verify the gallery displays only issues with Status = "Closed" <br> 2. Verify no issues with Status = New, Active, Monitoring, or Escalated appear in the gallery <br> 3. Cross-reference with OFR_Issues in SharePoint to confirm the count matches |
+| **Expected Result** | Only closed issues appear in the gallery. No open or active issues are visible. |
+| **Priority** | High |
+
+#### TC-PA-CLS03: Gallery row displays correct fields
+| Field | Value |
+|-------|-------|
+| **Precondition** | ClosedScreen loaded with at least one closed issue |
+| **Steps** | 1. Examine a row in the gallery <br> 2. Verify the following fields are displayed: ItemID, Title, Owner, FunctionalGroup, and closed date <br> 3. Cross-reference values with the corresponding OFR_Issues record in SharePoint |
+| **Expected Result** | Each gallery row displays ItemID, Title, Owner, FunctionalGroup, and closed date with correct values matching SharePoint data. |
+| **Priority** | High |
+
+#### TC-PA-CLS04: Search by issue ID
+| Field | Value |
+|-------|-------|
+| **Precondition** | ClosedScreen loaded with multiple closed issues |
+| **Steps** | 1. Type "OFR-2" in the search box <br> 2. Verify filtered results |
+| **Expected Result** | Gallery filters to show only closed items matching "OFR-2". Non-matching items are hidden. |
+| **Priority** | High |
+
+#### TC-PA-CLS05: Search by owner name
+| Field | Value |
+|-------|-------|
+| **Precondition** | ClosedScreen loaded with multiple closed issues |
+| **Steps** | 1. Clear search box <br> 2. Type an owner name (e.g., "Sarah") in the search box <br> 3. Verify filtered results |
+| **Expected Result** | Gallery filters to show only closed items where Owner contains the search term. |
+| **Priority** | Medium |
+
+#### TC-PA-CLS06: Search by functional group name
+| Field | Value |
+|-------|-------|
+| **Precondition** | ClosedScreen loaded with multiple closed issues |
+| **Steps** | 1. Clear search box <br> 2. Type a functional group name (e.g., "Privacy") in the search box <br> 3. Verify filtered results |
+| **Expected Result** | Gallery filters to show only closed items where FunctionalGroup contains the search term. |
+| **Priority** | Medium |
+
+#### TC-PA-CLS07: Click closed issue row navigates to detail
+| Field | Value |
+|-------|-------|
+| **Precondition** | ClosedScreen loaded with at least one closed issue |
+| **Steps** | 1. Click on a closed issue row in the gallery <br> 2. Verify navigation to IssueDetailScreen <br> 3. Verify all fields are populated correctly (ItemID, Title, Owner, Priority, Status, FunctionalGroup, update history) |
+| **Expected Result** | IssueDetailScreen loads for the selected closed issue with all header fields and update history populated correctly. Status shows "Closed". |
+| **Priority** | High |
+
+#### TC-PA-CLS08: Clear search box shows all closed items
+| Field | Value |
+|-------|-------|
+| **Precondition** | ClosedScreen loaded with a search term entered and filtered results showing |
+| **Steps** | 1. Clear the search box (select all text and delete) <br> 2. Verify the gallery updates |
+| **Expected Result** | Gallery shows all closed items again (unfiltered). Count matches total closed issues in SharePoint. |
+| **Priority** | Medium |
+
+---
+
+### 3.8c — Power Apps: Dashboard KPI Drill-Through
+
+#### TC-PA-KPI01: Click Closed Items KPI navigates to ClosedScreen
+| Field | Value |
+|-------|-------|
+| **Precondition** | DashboardScreen loaded, at least one issue has Status = "Closed" |
+| **Steps** | 1. Locate the yellow "Closed Items" KPI card on the Dashboard <br> 2. Click the KPI card <br> 3. Verify navigation to ClosedScreen |
+| **Expected Result** | Clicking the Closed Items KPI card navigates to ClosedScreen showing all closed issues. |
+| **Priority** | High |
+
+#### TC-PA-KPI02: Closed Items KPI count matches ClosedScreen
+| Field | Value |
+|-------|-------|
+| **Precondition** | DashboardScreen loaded |
+| **Steps** | 1. Note the count displayed on the "Closed Items" KPI card on the Dashboard <br> 2. Navigate to ClosedScreen <br> 3. Count the total number of items in the gallery (with no search filter) <br> 4. Compare with the KPI count |
+| **Expected Result** | The KPI count on the Dashboard matches exactly the number of items displayed on the ClosedScreen gallery. |
+| **Priority** | High |
+
+---
+
+### 3.8d — Power Apps: Hamburger Navigation Menu (Cross-Screen)
 
 #### TC-PA-NAV01: Hamburger menu opens on tap
 | Field | Value |
 |-------|-------|
 | **Precondition** | Any screen loaded (e.g., DashboardScreen) |
-| **Steps** | 1. Verify the ☰ hamburger button is visible in the top-left of the header bar <br> 2. Click the ☰ button <br> 3. Verify a dropdown panel appears below the header with 5 navigation items |
-| **Expected Result** | Dropdown panel appears (X=10, Y=55, W=250, H=220) with white background and 5 items: Dashboard, Issue Tracker, Group Allocation, Kanban Board, Submit New Issue. A transparent overlay covers the rest of the screen behind the panel. |
+| **Steps** | 1. Verify the ☰ hamburger button is visible in the top-left of the header bar <br> 2. Click the ☰ button <br> 3. Verify a dropdown panel appears below the header with 6 navigation items |
+| **Expected Result** | Dropdown panel appears (X=10, Y=55, W=250, H=260) with white background and 6 items: Dashboard, Issue Tracker, Group Allocation, Kanban Board, Closed Items, Submit New Issue. A transparent overlay covers the rest of the screen behind the panel. |
 | **Priority** | High |
 
 #### TC-PA-NAV02: Current screen highlighted in dropdown
@@ -686,7 +792,7 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | Field | Value |
 |-------|-------|
 | **Precondition** | DashboardScreen loaded |
-| **Steps** | 1. Open ☰ menu, click "Issue Tracker" — verify TrackerScreen loads <br> 2. Open ☰ menu, click "Group Allocation" — verify GroupAllocationScreen loads <br> 3. Open ☰ menu, click "Kanban Board" — verify KanbanScreen loads <br> 4. Open ☰ menu, click "Submit New Issue" — verify SubmitScreen loads <br> 5. Open ☰ menu, click "Dashboard" — verify DashboardScreen loads |
+| **Steps** | 1. Open ☰ menu, click "Issue Tracker" — verify TrackerScreen loads <br> 2. Open ☰ menu, click "Group Allocation" — verify GroupAllocationScreen loads <br> 3. Open ☰ menu, click "Kanban Board" — verify KanbanScreen loads <br> 4. Open ☰ menu, click "Closed Items" — verify ClosedScreen loads <br> 5. Open ☰ menu, click "Submit New Issue" — verify SubmitScreen loads <br> 6. Open ☰ menu, click "Dashboard" — verify DashboardScreen loads |
 | **Expected Result** | Each menu item navigates to the correct screen. Dropdown closes after each selection. |
 | **Priority** | High |
 
@@ -706,12 +812,28 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | **Expected Result** | Dropdown is not visible when a screen loads. `varShowNav` is reset to `false` in each screen's `OnVisible`. |
 | **Priority** | Medium |
 
-#### TC-PA-NAV06: Consistent hamburger menu across all 6 screens
+#### TC-PA-NAV06: Consistent hamburger menu across all 7 screens
 | Field | Value |
 |-------|-------|
 | **Precondition** | App is running |
-| **Steps** | 1. Visit each of the 6 screens: Dashboard, Tracker, Issue Detail, Submit, Group Allocation, Kanban <br> 2. On each screen, verify: ☰ hamburger button in top-left, "+ Submit New Issue" CTA in top-right, dropdown opens with 5 items, header bar is orange <br> 3. On IssueDetailScreen, verify "< Tracker" back button between hamburger and title <br> 4. On SubmitScreen, verify "< Dashboard" back button between hamburger and title |
-| **Expected Result** | All 6 screens have identical hamburger menu layout, styling, and behaviour. IssueDetailScreen and SubmitScreen additionally have back buttons. Header bar is consistently `RGBA(208,74,2,1)` orange, 55px height. |
+| **Steps** | 1. Visit each of the 7 screens: Dashboard, Tracker, Issue Detail, Submit, Group Allocation, Kanban, Closed Items <br> 2. On each screen, verify: ☰ hamburger button in top-left, "+ Submit New Issue" CTA in top-right, dropdown opens with 6 items, header bar is orange <br> 3. On IssueDetailScreen, verify "< Tracker" back button between hamburger and title <br> 4. On SubmitScreen, verify "< Dashboard" back button between hamburger and title |
+| **Expected Result** | All 7 screens have identical hamburger menu layout, styling, and behaviour. IssueDetailScreen and SubmitScreen additionally have back buttons. Header bar is consistently `RGBA(208,74,2,1)` orange, 55px height. |
+| **Priority** | High |
+
+#### TC-PA-NAV07: All 7 screens show 6 navigation items
+| Field | Value |
+|-------|-------|
+| **Precondition** | App is running |
+| **Steps** | 1. Visit each of the 7 screens: Dashboard, Tracker, Issue Detail, Submit, Group Allocation, Kanban, Closed Items <br> 2. On each screen, open the ☰ hamburger menu <br> 3. Verify the dropdown contains exactly 6 navigation items: Dashboard, Issue Tracker, Group Allocation, Kanban Board, Closed Items, Submit New Issue |
+| **Expected Result** | All 7 screens display the same 6 navigation items in the hamburger dropdown. No items are missing or duplicated. |
+| **Priority** | High |
+
+#### TC-PA-NAV08: ClosedScreen hamburger highlights current screen
+| Field | Value |
+|-------|-------|
+| **Precondition** | ClosedScreen loaded |
+| **Steps** | 1. Click the ☰ hamburger menu button on ClosedScreen <br> 2. Verify "Closed Items" is highlighted as the current screen (blue text, light blue-grey fill) <br> 3. Verify all other navigation items use default styling |
+| **Expected Result** | "Closed Items" entry in the dropdown is visually distinct (blue text with `RGBA(65,83,133,1)`, light fill with `RGBA(210,215,226,1)`). Other items use default styling. |
 | **Priority** | High |
 
 ---
@@ -884,12 +1006,26 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | TC-PA-NAV03 | Navigate to each screen | | | | |
 | TC-PA-NAV04 | Outside tap closes dropdown | | | | |
 | TC-PA-NAV05 | Dropdown closes after nav | | | | |
-| TC-PA-NAV06 | Consistent across 6 screens | | | | |
+| TC-PA-NAV06 | Consistent across 7 screens | | | | |
+| TC-PA-NAV07 | All 7 screens show 6 nav items | | | | |
+| TC-PA-NAV08 | ClosedScreen nav highlighting | | | | |
+| TC-PA-CLS01 | Nav to Closed (hamburger) | | | | |
+| TC-PA-CLS02 | Closed gallery — only closed | | | | |
+| TC-PA-CLS03 | Closed gallery row fields | | | | |
+| TC-PA-CLS04 | Closed search by ID | | | | |
+| TC-PA-CLS05 | Closed search by owner | | | | |
+| TC-PA-CLS06 | Closed search by group | | | | |
+| TC-PA-CLS07 | Closed row tap to detail | | | | |
+| TC-PA-CLS08 | Closed clear search | | | | |
+| TC-PA-KPI01 | Closed KPI drills to screen | | | | |
+| TC-PA-KPI02 | Closed KPI count matches | | | | |
 | TC-PA-T15 | FunctionalGroup column | | | | |
 | TC-PA-T16 | Search by group | | | | |
 | TC-PA-I09 | FunctionalGroup on detail | | | | |
 | TC-PA-S04 | FunctionalGroup dropdown | | | | |
 | TC-PA-S05 | FunctionalGroup saved | | | | |
+| TC-PA-S06 | RelatedOFRIssue field | | | | |
+| TC-PA-S07 | RelatedOFRIssue saved | | | | |
 | TC-PA-D11 | FunctionalGroup acceptance | | | | |
 | TC-PA-D12 | Nav to Group Alloc (hamburger) | | | | |
 | TC-PA-D13 | Nav to Kanban (hamburger) | | | | |
@@ -910,16 +1046,30 @@ Validate that the M365-native OFR Issue Tracker correctly supports the full issu
 | Priority | Count | Description |
 |----------|-------|-------------|
 | Critical | 2 | Full end-to-end lifecycle (TC-E2E-01, TC-E2E-03) |
-| High | 48 | Core functionality — KPIs, filters, updates, flows, data integrity, intake panel, submit screen, group allocation, kanban board, FunctionalGroup pipeline, hamburger navigation |
-| Medium | 21 | Secondary features — sorting, combined filters, concurrent access, panel states, card counts, staleness colours, nav dropdown close behaviour |
+| High | 57 | Core functionality — KPIs, filters, updates, flows, data integrity, intake panel, submit screen, group allocation, kanban board, closed items screen, KPI drill-through, FunctionalGroup pipeline, hamburger navigation |
+| Medium | 26 | Secondary features — sorting, combined filters, concurrent access, panel states, card counts, staleness colours, nav dropdown close behaviour, RelatedOFRIssue field, closed items search |
 | Low | 11 | Edge cases — empty search, long text, special chars, navigation, back buttons |
-| **Total** | **82** | |
+| **Total** | **103** | |
+
+### Deck Generation Test Cases
+
+| ID | Description | Priority | Status | Tester | Notes |
+|----|-------------|----------|--------|--------|-------|
+| TC-DECK-01 | Azure Function responds to POST with valid JSON | High | | | curl -X POST with function key |
+| TC-DECK-02 | PPTX file appears in SharePoint Generated Reports folder | High | | | Check filename has timestamp |
+| TC-DECK-03 | Generated PPTX opens correctly and contains expected slides | High | | | Verify 51 slides with current data |
+| TC-DECK-04 | Power Automate flow completes successfully on manual test | High | | | Run flow manually in Power Automate |
+| TC-DECK-05 | Power Apps button triggers flow and shows success notification | High | | | Click "Generate Issue Deck", verify notification + file opens |
+| TC-DECK-06 | Power Apps button shows loading state during generation | Medium | | | Verify button disabled, loading text visible |
+| TC-DECK-07 | Error handling: Azure Function returns 500, Power Apps shows error notification | Medium | | | Disable Function or revoke credentials to simulate failure |
 
 ### Recommended Test Order
 1. **SharePoint data layer** (TC-SP-01 to TC-SP-06) — confirm foundation including FunctionalGroup
 2. **Power Automate flows** (TC-FL-S01 to TC-FL-S05, TC-FL-P01 to TC-FL-P06) — confirm automation
 3. **Power Apps core screens** (TC-PA-D01 to TC-PA-I09, TC-PA-S01 to TC-PA-S05) — confirm UI including FunctionalGroup
-4. **Power Apps new screens** (TC-PA-G01 to TC-PA-G06, TC-PA-K01 to TC-PA-K08) — confirm Group Allocation and Kanban
-5. **Hamburger navigation** (TC-PA-NAV01 to TC-PA-NAV06) — confirm unified navigation menu across all screens
-6. **End-to-end** (TC-E2E-01, TC-E2E-02, TC-E2E-03) — confirm full lifecycle including FunctionalGroup flow
-7. **Edge cases & auth** (TC-NEG-01 to TC-AUTH-02) — confirm robustness
+4. **Power Apps new screens** (TC-PA-G01 to TC-PA-G06, TC-PA-K01 to TC-PA-K08, TC-PA-CLS01 to TC-PA-CLS08) — confirm Group Allocation, Kanban, and Closed Items
+5. **Dashboard KPI drill-through** (TC-PA-KPI01 to TC-PA-KPI02) — confirm KPI card navigation to ClosedScreen
+6. **Hamburger navigation** (TC-PA-NAV01 to TC-PA-NAV08) — confirm unified navigation menu across all 7 screens
+7. **Deck generation** (TC-DECK-01 to TC-DECK-07) — confirm Azure Function + flow + Power Apps integration
+8. **End-to-end** (TC-E2E-01, TC-E2E-02, TC-E2E-03) — confirm full lifecycle including FunctionalGroup flow
+9. **Edge cases & auth** (TC-NEG-01 to TC-AUTH-02) — confirm robustness
